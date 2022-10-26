@@ -84,7 +84,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
            f"(USER {event.user_id}, GROUP {event.group_id if isinstance(event, GroupMessageEvent) else 'private'}) 发送信息:\n"
          + result 
         )
-###发送favicon#太难写了，放弃
+###发送favicon正在编写
 '''
     base0 = str(f'{data["favicon"]}')
     if base0 != "null":
