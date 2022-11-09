@@ -98,5 +98,3 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
            f"(USER {event.user_id}, GROUP {event.group_id if isinstance(event, GroupMessageEvent) else 'private'}) 发送信息:\n"
          + result 
         )
-##
-
