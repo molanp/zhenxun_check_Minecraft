@@ -13,6 +13,6 @@
 🔳获取服务器motd的json版本[已实现但未启用]</br>
 🔳敬请期待</br>
 <h1>测试截图<h1></br>
-<a img src="https://www.hualigs.cn/image/636b76abaf733.jpg"/</a></br>
+<img src="https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png"</br>
 <h1>下载地址</h1></br>
 <a href ="https://github.com/YiRanEL/zhenxun_chafu_Minecraft/releases">下载地址</a>
