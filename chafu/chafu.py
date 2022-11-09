@@ -87,7 +87,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
           img = base64.b64decode(base)
 #####################
         ############
-        result = "名称：" + server + "\n地址：" + ip + "\n端口：" + port + f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"# + "\napi：" + url
+        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"# + "\napi：" + url
         end = Message ([
               MessageSegment.text(result),
               MessageSegment.image(img)
