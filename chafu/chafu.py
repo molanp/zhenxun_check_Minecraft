@@ -18,14 +18,14 @@ usage：
 """.strip()
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
-__plugin_cmd__ = ["查服/查"]
+__plugin_cmd__ = ["查服"]
 __plugin_version__ = 0.3
 __plugin_author__ = "沫兰"##(其实还是ioew)##
 __plugin_settings__ = {
     "level": 5,
     "default_status": True,
     "limit_superuser": False,
-    "cmd": ["查服", '查'],
+    "cmd": ["查服"],
 }
 __plugin_cd_limit__ = {
     "cd": 10,   
