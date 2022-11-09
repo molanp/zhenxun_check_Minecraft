@@ -11,8 +11,8 @@ __plugin_usage__ = """
 usage：
     我的世界服务器状态查询
     用法：
-        @bot_name 查服 [ip] ?[端口]
-        @bot_name 查服 ip:端口(端口必须五位)
+        查服 [ip] ?[端口]
+        查服 ip:端口(端口必须五位)
         [若不响应消息，请@bot或在文字前加上bot的名字]
     tips:汉字与ip间可以有空格
 """.strip()
