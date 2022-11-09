@@ -54,7 +54,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
 #######################################
     data = (await AsyncHttpx.get(url, timeout=5)).json()
     if temp == "False":
-        result = "输入信息不完整\n请重新输入"
+        result = "\n输入信息不完整\n请重新输入"
         await chafu.send(Message(result), at_sender=True)
     else:
         #######获取数据######
