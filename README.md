@@ -19,7 +19,8 @@
 
 ## 测试截图
 
-<img src="https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png">
+![测试截图](https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png)
+<!--图片地址：https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png-->
 
 ## 使用方法
 
