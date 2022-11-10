@@ -19,7 +19,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服"]
-__plugin_version__ = 0.3
+__plugin_version__ = 0.4
 __plugin_author__ = "沫兰"##(其实还是ioew)##
 __plugin_settings__ = {
     "level": 5,
@@ -79,19 +79,22 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
         max = str(players["max"])
         now = str(players["now"])
         status = str(f'{data["status"]}')
+        ####整理文字###
+        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"
+        ###############
         ######发送favicon###
         if status != "error":
           base0 = str(f'{data["favicon"]}')
-          #if base0 != "null":
-          base = base0[22:]
-          img = base64.b64decode(base)
-#####################
-      ###############
-        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"# + "\napi：" + url
-        end = Message ([
-              MessageSegment.text(result),
-              MessageSegment.image(img)
+          if base0 != "null":
+            base = base0[22:]
+            img = base64.b64decode(base)
+            #########
+            end = Message ([
+               MessageSegment.text(result),
+               MessageSegment.image(img)
             ])
+        else:
+          end = result
         await chafu.send(Message(end), at_sender=True)
         #await chafu.send(image(img), at_sender=True)
         logger.info(
