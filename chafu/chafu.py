@@ -58,6 +58,8 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
         await chafu.send(Message(result), at_sender=True)
     else:
         #######获取数据######
+        ms = int(f'{data["duration"]}') #获取延迟_单位纳秒
+        ms = ms/1000000  #计算_单位毫秒
         temp = f'{data["players"]}'
         tmp = temp.index("sample")
         tmp = tmp - 3
@@ -80,7 +82,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
         now = str(players["now"])
         status = str(f'{data["status"]}')
         ####整理文字###
-        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"
+        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + "\n延迟："，+ ms + "ms" +  f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"
         ###############
         ######发送favicon###
         if status != "error":
