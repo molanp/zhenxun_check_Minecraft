@@ -21,6 +21,12 @@
 
 <img src="https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png">
 
+## 使用方法
+
+- 将'chafu'文件夹放入'plugins'文件夹或自定义文件夹内
+- 命令
+  - 查服 [ip]?[port]
+
 # 下载地址
 
 [下载地址](https://github.com/YiRanEL/zhenxun_chafu_Minecraft/releases)
