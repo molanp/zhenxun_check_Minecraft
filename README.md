@@ -31,4 +31,6 @@
 
 # 下载地址
 
+## 建议直接copy源码，releases内更新不及时
+
 [下载地址](https://github.com/YiRanEL/zhenxun_chafu_Minecraft/releases)
