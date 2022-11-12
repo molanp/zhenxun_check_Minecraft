@@ -82,7 +82,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
         now = str(players["now"])
         status = str(f'{data["status"]}')
         ####整理文字###
-        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + "\n延迟："，+ ms + "ms" +  f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"
+        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + "\n延迟：" + ms + "ms" +  f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"
         ###############
         ######发送favicon###
         if status != "error":
