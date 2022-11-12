@@ -4,6 +4,7 @@ from utils.message_builder import image
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment, GroupMessageEvent, Message
 from nonebot.typing import T_State
 from utils.http_utils import AsyncHttpx
+from ping3 import ping
 import ast, base64
 
 __zx_plugin_name__ = "我的世界查服"
@@ -19,7 +20,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服"]
-__plugin_version__ = 0.4
+__plugin_version__ = 0.5
 __plugin_author__ = "沫兰"##(其实还是ioew)##
 __plugin_settings__ = {
     "level": 5,
@@ -49,24 +50,28 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
        ip = str(s)
     
     url = "https://mcapi.us/server/status?ip=" + ip + "&port=" + port
-####判断端口是否全部为数字，防止有人捣乱####
+####判断端口是否全部为数字，防止有人捣乱####防君子不防小人####
     temp = str(port.isdigit())
 #######################################
-    data = (await AsyncHttpx.get(url, timeout=5)).json()
+    data = (await AsyncHttpx.get(url, timeout=5)).json()#若获取无结果，请修改timeout后的数字
     if temp == "False":
         result = "\n输入信息不完整\n请重新输入"
         await chafu.send(Message(result), at_sender=True)
     else:
-        #######获取数据######
-        ms = int(f'{data["duration"]}') #获取延迟_单位纳秒
-        ms = ms/1000000  #计算_单位毫秒
+#############获取数据######
+        ##获取延迟####
+        ms = ping(ip)
+        if ms != None:
+          ms = int(ms * 1000)
+        else:
+          ms = "超时"
+        ms = f'{ms}ms'
+        ##获取延迟####
         temp = f'{data["players"]}'
-        tmp = temp.index("sample")
-        tmp = tmp - 3
+        tmp = temp.index("sample") - 3
         tmp = temp[:tmp]
         temp = tmp[1:]
-        tmp = temp.index(",")
-        tmp = tmp + 1
+        tmp = temp.index(",") + 1
         q = temp[:tmp]
         tmp = tmp +1
         s = temp[tmp:]
@@ -82,7 +87,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
         now = str(players["now"])
         status = str(f'{data["status"]}')
         ####整理文字###
-        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + "\n延迟：" + ms + "ms" +  f'\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：' + now + "/" + max + f'\n状态码：{data["status"]}' + "\nFavicon:"
+        result = "\n名称：" + server + "\n地址：" + ip + "\n端口：" + port + f'\n延迟：{ms}' +  f'\n在线：{data["online"]}\nmotd：{data["motd"]}' + f'\n人数：{now}/{max}' + f'\n状态码：{data["status"]}' + "\nFavicon:"
         ###############
         ######发送favicon###
         if status != "error":
