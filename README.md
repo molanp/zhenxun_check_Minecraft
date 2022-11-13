@@ -24,9 +24,9 @@
 
 ## 测试截图
 
-![测试截图](https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png)
-此图使用0.3版本↑
-<!--图片地址：https://user-images.githubusercontent.com/104612722/200799085-739149f2-533b-464c-97fd-2572858d201d.png-->
+![测试截图](https://user-images.githubusercontent.com/104612722/201504468-d9b96fdf-fca2-4200-b740-51acfc6dff4c.jpg)
+此图使用v0.6版本↑
+<!--图片地址：https://user-images.githubusercontent.com/104612722/201504468-d9b96fdf-fca2-4200-b740-51acfc6dff4c.jpg-->
 
 ## 使用方法
 - 安装
@@ -43,12 +43,11 @@
 # 更新日志
 <details>
 <summary>更新日志</summary>
-<!--
+
 ## 2022/11/13
 ### v0.6
 README文件重编写
 支持发送错误信息
--->
 ## 2022/11/12
 ### v0.5
 README文件重编写
@@ -69,4 +68,5 @@ README文件重编写
 ### v0.1
 支持发送服务器各个信息(favicon除外)
 支持发送延迟[实际上是api处理响应时间，不精确]
+
 </details>
