@@ -34,7 +34,8 @@
   - 将`chafu`文件夹放入`plugins`文件夹或自定义文件夹内
   - 若提示缺少依赖，请执行`pip install ping3`~~(理论上来说必定缺少此模块)~~
 - 使用
-  - 查服 [ip]?[port]
+  - 查服 [ip]:[port]  {Java}
+  - b查 [ip]:[port]    {基岩版}
 
 # 下载地址
 
