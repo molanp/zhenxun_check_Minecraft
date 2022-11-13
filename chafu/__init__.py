@@ -17,20 +17,20 @@ usage：
         查服 ip:端口(端口必须五位)
         <以上仅限Java服务器>
         <以下仅限基岩版服务器>
-        查 ip:端口
+        b查 ip:端口
         [若不响应消息，请@bot或在文字前加上bot的名字]
     tips:汉字与ip间可以有空格
 """.strip()
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
-__plugin_cmd__ = ["查服","查"]
+__plugin_cmd__ = ["查服","b查"]
 __plugin_version__ = 0.6
 __plugin_author__ = "YiRanEL"#觉得还是写GitHub名称比较好
 __plugin_settings__ = {
     "level": 5,
     "default_status": True,
     "limit_superuser": False,
-    "cmd": ["查服",'查'],
+    "cmd": ["查服",'b查'],
 }
 __plugin_cd_limit__ = {
     "cd": 10,   
@@ -120,18 +120,18 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
       
 ##以下为基岩服务器查询
 
-bds = on_command("查", priority=5, block=True)
+bds = on_command("b查", priority=5, block=True)
 
 @bds.handle()
 async def _(bot: Bot, event: MessageEvent, state: T_State):
-    host = "查"
+    host = "b查"
     host = str(host)
     q = str(event.get_message()).strip()
     temp = q.find(host)
     if temp == (-1):
        host = str(q)
     else:
-       host = q[1:].strip()
+       host = q[2:].strip()
     
     url = "https://motdbe.blackbe.xyz/api?host=" + host
 ####判断是否存在端口，防止有人捣乱##
