@@ -1,5 +1,6 @@
-# 我的世界服务器状态查询插件，适配真寻bot
-## 若有什么好的功能建议，欢迎在[Issues](https://github.com/YiRanEL/zhenxun_chafu_Minecraft/issues)中提出
+# 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
+# 中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/main/README_en.md)
+## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
 ## 已实现的功能
 
@@ -42,7 +43,7 @@
 # 下载地址
 
 ## 建议直接copy源码，releases内更新不及时
-[下载地址](https://github.com/YiRanEL/zhenxun_chafu_Minecraft/releases)
+[下载地址](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
 # 更新日志
 <details>
@@ -54,7 +55,7 @@
 
 优化代码逻辑
 
-规范变量名[乱得自己都看不下去]
+规范变量名
 
 对api调用进行限制
 
@@ -66,32 +67,20 @@
 输入时若`ip`后若无端口(且无`:`)，自动使用默认端口[25565/19132]
 ## 2022/11/13
 ### v0.6-plus
-README文件重编写
-
 支持发送错误信息
 
 支持查询UDP协议服务器
 ### v0.6[beta内部测试]
-添加了配置文件[下一版本已删除]
-
-支持切换消息发送模式[下一版本已删除]
-
-支持查询UDP服务器,但命令冲突[下一版本已修复]
+支持查询UDP服务器,但命令冲突[已修复]
 ## 2022/11/12
 ### v0.5
-README文件重编写
-
-整理了代码
-
-更精确的服务器延迟[使用ping服务]
+更精确的服务器延迟
 ## 2022/11/09
 ### v0.4-fix[releases中第一个版本]
-重命名文件[错误的文件名]
+重命名文件
 ### v0.4
 修复favicon不存在造成的消息发送失败问题
 ### v0.3
-编写readme文件
-
 支持发送favicon
 
 更灵敏的触发
@@ -100,8 +89,8 @@ README文件重编写
 更新usage
 ## 2022/10/25
 ### v0.1[标签new,初版本]
-支持发送服务器各个信息(favicon除外)
+支持查询JAVA服务器
 
-支持发送延迟[实际上是api处理响应时间，不精确]
+支持发送延迟
 
 </details>
