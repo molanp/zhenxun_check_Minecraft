@@ -1,5 +1,5 @@
 # Minecraft_server_plugins.Adaptation [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
-# English|[中文](https://github.com/molanp/zhenxun_chafu_Minecraft/master/README.md)
+# English|[中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README.md)
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
 ## Implemented functions
