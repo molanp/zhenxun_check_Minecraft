@@ -5,10 +5,12 @@ from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment, Group
 from nonebot.typing import T_State
 from utils.http_utils import AsyncHttpx
 from ping3 import ping
+from configs.config import NICKNAME
+
 import ast, base64
 
 __zx_plugin_name__ = "我的世界查服"
-__plugin_usage__ = """
+__plugin_usage__ = f"""
 usage：
     我的世界服务器状态查询
     用法：
@@ -20,7 +22,7 @@ usage：
         b查 [ip]:[端口]
        或
         b查 [ip]
-      [若不响应消息，请@bot_name]
+      [若不响应消息，请在命令前添加"{NICKNAME}"]
 """.strip()
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
