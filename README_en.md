@@ -50,6 +50,10 @@ This diagram uses version v0.6↑
 <details>
 <summary>Update log</summary>
 
+## 2022/12/26
+### v0.8
+Change the bedrock version to use the Chinese API source
+
 ## 2022/11/14
 ### v0.7
 Unified input format.
