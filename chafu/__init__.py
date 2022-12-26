@@ -120,11 +120,13 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
            temp = content.find(":")
            if temp == (-1): 
              host = content[2:].strip()
-             host = f'{host}:19132'
+             port = '19132'
            else: 
-             host = content[2:].strip()
+             host = content[2:temp].strip()
+             temp = temp + 1
+             port = content[temp:]
           #组合api#
-           url = "https://api.imlazy.ink/mcapi/?type=json&be=true&host=" + host
+           url = f"https://api.imlazy.ink/mcapi/?type=json&be=true&host={host}&port={port}"
         #############获取数据######
            data = (await AsyncHttpx.get(url, timeout=5)).json()#若获取无结果，请修改timeout=后的数字
            data = str(data)
@@ -138,7 +140,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
              ms = "超时"
            ##获取延迟####
            ####整理文字###
-           result = f'\n版本：{data["version"]}\n地址：{data["host"]}\n延迟：{ms}ms\nmotd：{data["motd"]}\n人数：{data["players_online"]}/{data["players_max"]}\n平台：{data["platform"]}\n存档名：{data["map"]}\n游戏类型：{data["gametype"]}\n状态：{data["status"]}'
+           result = f'\n版本：{data["version"]}\n地址：{data["host"]}\n端口：{port}\n延迟：{ms}ms\nmotd：{data["motd"]}\n人数：{data["players_online"]}/{data["players_max"]}\n平台：{data["platform"]}\n存档名：{data["map"]}\n游戏类型：{data["gametype"]}\n状态：{data["status"]}'
         await bds.send(Message(result), at_sender=True)
         logger.info(
          f"(USER {event.user_id}, GROUP {event.group_id if isinstance(event, GroupMessageEvent) else 'private'}) 发送信息:\n"
