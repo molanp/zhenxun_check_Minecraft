@@ -5,12 +5,10 @@ from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment, Group
 from nonebot.typing import T_State
 from utils.http_utils import AsyncHttpx
 from ping3 import ping
-from configs.config import NICKNAME
-
 import ast, base64
 
 __zx_plugin_name__ = "我的世界查服"
-__plugin_usage__ = f"""
+__plugin_usage__ = """
 usage：
     我的世界服务器状态查询
     用法：
@@ -22,13 +20,13 @@ usage：
         b查 [ip]:[端口]
        或
         b查 [ip]
-      [若不响应消息，请在命令前添加"{NICKNAME}"]
+      [若不响应消息，请@bot_name]
 """.strip()
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服","b查"]
-__plugin_version__ = 0.7
-__plugin_author__ = "molanp"#觉得还是写GitHub名称比较好
+__plugin_version__ = 0.6
+__plugin_author__ = "YiRanEL"#觉得还是写GitHub名称比较好
 __plugin_settings__ = {
     "level": 5,
     "default_status": True,
@@ -40,7 +38,7 @@ __plugin_cd_limit__ = {
     "rst": "查坏了...再等等吧"
 }
 ##自定义错误信息
-error = "\n查服发生了一些错误...\n这绝对不是俺的问题！\n绝对不是！！"
+error = "查服发生了一些错误...\n这绝对不是俺的问题！\n绝对不是！！"
 ##自定义错误信息
 chafu = on_command("查服", priority=5, block=True)
 
@@ -126,14 +124,21 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
            else: 
              host = content[2:].strip()
           #组合api#
-           url = "https://motdbe.blackbe.xyz/api?host=" + host
+           url = "https://api.imlazy.ink/mcapi/?type=json&be=true&host=" + host
         #############获取数据######
            data = (await AsyncHttpx.get(url, timeout=5)).json()#若获取无结果，请修改timeout=后的数字
            data = str(data)
            #从网页获取数据#
            data = ast.literal_eval(data) #转换成字典
+            ##获取延迟####
+           ms = ping(host.split(':')[0])
+           if ms != None:
+             ms = int(ms * 1000)
+           else:
+             ms = "超时"
+           ##获取延迟####
            ####整理文字###
-           result = f'\n版本：{data["version"]}\n地址：{data["host"]}\n延迟：{data["delay"]}ms\nmotd：{data["motd"]}\n人数：{data["online"]}/{data["max"]}\n存档名：{data["level_name"]}\n游戏模式：{data["gamemode"]}\n状态码：{data["status"]}'
+           result = f'\n版本：{data["version"]}\n地址：{data["host"]}\n延迟：{ms}ms\nmotd：{data["motd"]}\n人数：{data["players_online"]}/{data["players_max"]}\n平台：{data["platform"]}\n存档名：{data["map"]}\n游戏类型：{data["gametype"]}\n状态：{data["status"]}'
         await bds.send(Message(result), at_sender=True)
         logger.info(
          f"(USER {event.user_id}, GROUP {event.group_id if isinstance(event, GroupMessageEvent) else 'private'}) 发送信息:\n"
