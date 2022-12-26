@@ -25,7 +25,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服","b查"]
-__plugin_version__ = 0.6
+__plugin_version__ = 0.8.1
 __plugin_author__ = "YiRanEL"#觉得还是写GitHub名称比较好
 __plugin_settings__ = {
     "level": 5,
