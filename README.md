@@ -20,17 +20,17 @@
 
 ## 未来的功能
 
-- [ ] 获取服务器协议号[没什么用，未开发]
+- [ ] 获取服务器协议号
 - [ ] 获取服务器官网[如果存在]
-- [ ] 添加配置文件[技术不成熟，测试发现会有许多bug]
+- [ ] 添加配置文件
 - [ ] 敬请期待
 
 ## 测试截图
 
-![测试截图](https://user-images.githubusercontent.com/104612722/201504468-d9b96fdf-fca2-4200-b740-51acfc6dff4c.jpg)
+![测试截图](https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png)
 
-此图使用v0.6版本↑
-<!--图片地址：https://user-images.githubusercontent.com/104612722/201504468-d9b96fdf-fca2-4200-b740-51acfc6dff4c.jpg-->
+此图使用v0.9版本↑
+<!--图片地址：https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png-->
 
 ## 使用方法
 - 安装
