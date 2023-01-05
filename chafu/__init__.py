@@ -2,7 +2,8 @@ from nonebot import on_command
 from services.log import logger
 from utils.message_builder import image
 from nonebot.adapters.onebot.v11 import Bot, MessageEvent, MessageSegment, GroupMessageEvent, Message
-from nonebot.typing import T_State
+from nonebot.params import Arg, CommandArg, ArgPlainText
+from nonebot.matcher import Matcher
 from utils.http_utils import AsyncHttpx
 from ping3 import ping
 import ast, base64
@@ -25,7 +26,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服","b查"]
-__plugin_version__ = 0.8
+__plugin_version__ = 0.9
 __plugin_author__ = "YiRanEL"#觉得还是写GitHub名称比较好
 __plugin_settings__ = {
     "level": 5,
@@ -34,36 +35,43 @@ __plugin_settings__ = {
     "cmd": ["查服",'b查'],
 }
 __plugin_cd_limit__ = {
-    "cd": 10,   
+    "cd": 5,   
     "rst": "查坏了...再等等吧"
 }
 ##自定义错误信息
 error = "查服发生了一些错误...\n这绝对不是俺的问题！\n绝对不是！！"
-##自定义错误信息
-chafu = on_command("查服", priority=5, block=True)
 
-@chafu.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State):
+chafu_java = on_command("查服", priority=5, block=True)
+chafu_bedrock = on_command("b查", priority=5, block=True)
+
+
+@chafu_java.handle()
+async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
+    plain_text = args.extract_plain_text()  # 首次发送命令时跟随的参数，例：/天气 上海，则args为上海
+    if plain_text:
+        matcher.set_arg("host", args)  # 如果用户发送了参数则直接赋值
+
+@chafu_java.got("host", prompt="IP是?")
+async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
+  if "." not in host_name:  # 如果参数不符合要求，则提示用户重新输入
+        # 可以使用平台的 Message 类直接构造模板消息
+    await chafu_java.reject(host.template("不知道你服务器的IP在哪里，在你心里吗?"))
+  result = await get_info_java(host_name)
+  await chafu_java.finish(result)
+
+async def get_info_java(host_name: str):
     try:
-        ####判断是否存在地址标识，防止有人捣乱##
-        content = str(event.get_message()).strip()
-        temp = content.find(".")#防君子不防小人
-        if temp == (-1):
-          end = "\n输入信息有误\n请重新输入"
-        else:
-           temp = content.find(":")
-           ##截取数据##
-           if temp == (-1): 
-             ip = content[2:].strip()
-             port = "25565"
-           else:
-             ip = content[2:temp].strip()
-             temp = temp + 1
-             port = content[temp:]
+        if 1==1:
+          ip = host.split(':')[0]
+          try:
+            port = host.split(':')[1]
+          except:
+            port = '25565'
+          finally:
             #组合api#
-           url = "https://mcapi.us/server/status?ip=" + ip + "&port=" + port
+           url = f"https://mcapi.us/server/status?ip={ip}&port={port}"
         #############获取数据######
-           data = (await AsyncHttpx.get(url, timeout=5)).json()#若获取无结果，请修改timeout=后的数字
+           data = (await AsyncHttpx.get(url, timeout=5)).json()
            ##获取延迟####
            ms = ping(ip)
            if ms != None:
@@ -82,7 +90,7 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
            server = ast.literal_eval(server)
            players = ast.literal_eval(players)
            ####整理文字###
-           result = f'\n名称：{server["name"]}\n地址：{ip}\n端口：{port}\n延迟：{ms}\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：{players["now"]}/{players["max"]}\n状态码：{data["status"]}\nFavicon:'
+           result = f'\n名称：{server["name"]}\n类型：JAVA\n地址：{ip}\n端口：{port}\n延迟：{ms}\n在线：{data["online"]}\nmotd：{data["motd"]}\n人数：{players["now"]}/{players["max"]}\n状态码：{data["status"]}\nFavicon:'
            ######发送favicon###
            if status != "error":
              base0 = str(f'{data["favicon"]}')
@@ -95,57 +103,52 @@ async def _(bot: Bot, event: MessageEvent, state: T_State):
                ])
            else:
              end = result
-        await chafu.send(Message(end), at_sender=True)
-        logger.info(
-              f"(USER {event.user_id}, GROUP {event.group_id if isinstance(event, GroupMessageEvent) else 'private'}) 发送信息:\n"
-            + end 
-           )
+        await chafu_java.send(Message(end), at_sender=True)
     except:
-      await chafu.send(Message(error), at_sender=True)
-      logger.info(error)
+      await chafu_java.send(Message(error), at_sender=True)
       
 ##以下为基岩服务器查询
 
-bds = on_command("b查", priority=5, block=True)
+@chafu_bedrock.handle()
+async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
+    plain_text = args.extract_plain_text()  # 首次发送命令时跟随的参数，例：/天气 上海，则args为上海
+    if plain_text:
+        matcher.set_arg("host", args)  # 如果用户发送了参数则直接赋值
 
-@bds.handle()
-async def _(bot: Bot, event: MessageEvent, state: T_State):
+@chafu_bedrock.got("host", prompt="IP是?")
+async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
+  if "." not in host_name:  # 如果参数不符合要求，则提示用户重新输入
+        # 可以使用平台的 Message 类直接构造模板消息
+    await chafu_bedrock.reject(host.template("不知道你服务器的IP在哪里，在你心里吗?"))
+  result = await get_info_bedrock(host_name)
+  await chafu_bedrock.finish(result)
+
+async def get_info_bedrock(host_name: str):
     try:
-        content = str(event.get_message()).strip()
-        ####判断是否存在地址标识，防止有人捣乱##
-        temp = content.find(".")
-        if temp == (-1):
-          result = "\n输入信息有误\n请检查"
-        else:
-           temp = content.find(":")
-           if temp == (-1): 
-             host = content[2:].strip()
-             port = '19132'
-           else: 
-             host = content[2:temp].strip()
-             temp = temp + 1
-             port = content[temp:]
+        host = host_name.strip()
+        if 1==1:
+          ip = host.split(':')[0]
+          try:
+            port = host.split(':')[1]
+          except:
+            port = '19132'
+          finally:
           #组合api#
-           url = f"https://api.imlazy.ink/mcapi/?type=json&be=true&host={host}&port={port}"
-        #############获取数据######
+           url = f"https://api.imlazy.ink/mcapi/?type=json&be=true&host={ip}&port={port}"
+        ########获取数据######
            data = (await AsyncHttpx.get(url, timeout=5)).json()#若获取无结果，请修改timeout=后的数字
            data = str(data)
            #从网页获取数据#
            data = ast.literal_eval(data) #转换成字典
             ##获取延迟####
-           ms = ping(host.split(':')[0])
+           ms = ping(ip)
            if ms != None:
              ms = int(ms * 1000)
            else:
              ms = "超时"
            ##获取延迟####
            ####整理文字###
-           result = f'\n版本：{data["version"]}\n地址：{data["host"]}\n端口：{port}\n延迟：{ms}ms\nmotd：{data["motd"]}\n人数：{data["players_online"]}/{data["players_max"]}\n平台：{data["platform"]}\n存档名：{data["map"]}\n游戏类型：{data["gametype"]}\n状态：{data["status"]}'
-        await bds.send(Message(result), at_sender=True)
-        logger.info(
-         f"(USER {event.user_id}, GROUP {event.group_id if isinstance(event, GroupMessageEvent) else 'private'}) 发送信息:\n"
-         + result 
-        )
+           result = f'\n版本：{data["version"]}\n类型：Bedrock_server\n地址：{data["host"]}\n端口：{port}\n延迟：{ms}ms\nmotd：{data["motd"]}\n人数：{data["players_online"]}/{data["players_max"]}\n状态：{data["status"]}'#\n平台：{data["platform"]}\n存档名：{data["map"]}\n游戏类型：{data["gametype"]}
+        await chafu_bedrock.send(Message(result), at_sender=True)
     except:
-      await bds.send(Message(error), at_sender=True)
-      logger.info(error)
+      await chafu_bedrock.send(Message(error), at_sender=True)
