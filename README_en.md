@@ -16,12 +16,12 @@
 - [x] Error feedback
 - [x] Automatic port completion
 - [x] Judge whether the intelligent~~amentia~~ address is correct.
+- [x] Get the JSON version of the server motd (only if the server motd is set to JSON format)
 
 ## Future functions
 
 - [ ] Get server protocol number [Implemented but undeveloped]
 - [ ] Get server official website (if any)
-- [ ] Get JSON of server MOTD [implemented but undeveloped]
 - [ ] Add configuration file [immature technology]
 - [ ] And more...
 
@@ -49,6 +49,10 @@ This diagram uses version v0.6↑
 # Update log
 <details>
 <summary>Update log</summary>
+
+## 2023/01/05
+### v0.9
+Change the command trigger rule, and prompt for input when there are no parameters.
 
 ## 2022/12/26
 ### v0.8
