@@ -38,8 +38,6 @@ __plugin_cd_limit__ = {
     "cd": 5,   
     "rst": "查坏了...再等等吧"
 }
-##自定义错误信息
-error = "查服发生了一些错误...\n这绝对不是俺的问题！\n绝对不是！！"
 
 chafu_java = on_command("查服", priority=5, block=True)
 chafu_bedrock = on_command("b查", priority=5, block=True)
@@ -61,6 +59,7 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
 
 async def get_info_java(host_name: str):
     try:
+        host = host_name.strip()
         if 1==1:
           ip = host.split(':')[0]
           try:
@@ -104,7 +103,8 @@ async def get_info_java(host_name: str):
            else:
              end = result
         await chafu_java.send(Message(end), at_sender=True)
-    except:
+    except BaseException as e:
+      error = f"查服发生了一些错误:\n{e.__dict__['_request']}"
       await chafu_java.send(Message(error), at_sender=True)
       
 ##以下为基岩服务器查询
@@ -150,5 +150,6 @@ async def get_info_bedrock(host_name: str):
            ####整理文字###
            result = f'\n版本：{data["version"]}\n类型：Bedrock_server\n地址：{data["host"]}\n端口：{port}\n延迟：{ms}ms\nmotd：{data["motd"]}\n人数：{data["players_online"]}/{data["players_max"]}\n状态：{data["status"]}'#\n平台：{data["platform"]}\n存档名：{data["map"]}\n游戏类型：{data["gametype"]}
         await chafu_bedrock.send(Message(result), at_sender=True)
-    except:
+    except BaseException as e:
+      error = f"查服发生了一些错误:\n{e.__dict__['_request']}"
       await chafu_bedrock.send(Message(error), at_sender=True)
