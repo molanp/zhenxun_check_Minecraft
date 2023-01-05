@@ -20,17 +20,17 @@
 
 ## Future functions
 
-- [ ] Get server protocol number [Implemented but undeveloped]
+- [ ] Get server protocol number
 - [ ] Get server official website (if any)
-- [ ] Add configuration file [immature technology]
+- [ ] Add configuration file
 - [ ] And more...
 
 ## Test screenshot
 
-![picture](https://user-images.githubusercontent.com/104612722/201504468-d9b96fdf-fca2-4200-b740-51acfc6dff4c.jpg)
+![picture](https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png)
 
-This diagram uses version v0.6↑
-<!--address：https://user-images.githubusercontent.com/104612722/201504468-d9b96fdf-fca2-4200-b740-51acfc6dff4c.jpg-->
+This diagram uses version v0.9↑
+<!--address：https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png-->
 
 ## How to use
 - Install
