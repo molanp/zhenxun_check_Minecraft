@@ -2,6 +2,8 @@
 # English|[中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README.md)
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
+## If you need an older version of a single file, switch to branch `old`
+***
 ## Implemented functions
 
 - [x] Query server nickname
