@@ -25,7 +25,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port / minecheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服","minecheck"]
-__plugin_version__ = 0.9
+__plugin_version__ = 1.0
 __plugin_author__ = "YiRanEL"#觉得还是写GitHub名称比较好
 __plugin_settings__ = {
     "level": 5,
