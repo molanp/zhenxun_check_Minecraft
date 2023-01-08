@@ -2,12 +2,13 @@
 # 中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README_en.md)
 ## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
+## 如果你需要单文件的旧版本，请切换到分支`old`
+***
 ## 已实现的功能
 
 - [x] 查询服务器昵称
 - [x] 查询服务器最大人数,当前人数
 - [x] 查询服务器motd
-- [x] 查询服务器favicon[无则不发送]
 - [x] 返回服务器地址及端口
 - [x] 返回服务器在线状态
 - [x] 查询服务器延迟
@@ -17,12 +18,15 @@
 - [x] 端口自动补全
 - [x] 智~~障~~能判断IP地址是否正确
 - [x] 获取服务器motd的json版本(仅当服务器motd设置为json格式时)
+- [x] 不依赖任何外部api
+- [x] 支持特殊端口查询(如`2`,`80`,`443`等)
 
 ## 未来的功能
 
 - [ ] 获取服务器协议号
 - [ ] 获取服务器官网[如果存在]
 - [ ] 添加配置文件
+- [ ] 查询服务器favicon(等待包更新)
 - [ ] 敬请期待
 
 ## 测试截图
@@ -35,10 +39,8 @@
 ## 使用方法
 - 安装
   - 将`chafu`文件夹放入`plugins`文件夹或自定义文件夹内
-  - 若提示缺少依赖，请执行`pip install ping3`~~(理论上来说必定缺少此模块)~~
 - 使用
-  - 查服 [ip]:[port]  {Java}
-  - b查 [ip]:[port]    {基岩版}
+  - 查服 [ip]:[port]
 
 # 下载地址
 
@@ -48,6 +50,11 @@
 # 更新日志
 <details>
 <summary>更新日志</summary>
+
+## 2023/01/08
+### v1.0
+删除外置依赖，使用本地依赖
+不再依赖外部api
 
 ## 2023/01/05
 ### v0.9
@@ -101,3 +108,6 @@
 支持发送延迟
 
 </details>
+
+# 感谢
+[minestat](https://github.com/FragLand/minestat): 一个多平台语言的我的世界服务器查询模块
