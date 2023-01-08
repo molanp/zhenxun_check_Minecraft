@@ -5,24 +5,26 @@
 ## Implemented functions
 
 - [x] Query server nickname
-- [x] Query the maximum and current headcount of the server.
-- [x] Query server MOTD
-- [x] Query the server favicon[If it exists]
-- [x] Return the server address and port.
-- [x] Return the server to online status.
-- [x] Query server delay
-- [x] More accurate delay
-- [x] UDP server support
-- [x] Error feedback
-- [x] Automatic port completion
-- [x] Judge whether the intelligent~~amentia~~ address is correct.
+- [x] Query the maximum number of servers, the current number of people
+- [x] Query server motd
+- [x] returns the server address and port
+- [x] Returns the server online status
+- [x] Query server latency
+- [x] More precise delay
+- [x] UDP server is supported
+- [x] Error message feedback
+- [x] Port autocompletion
+- [x] Wisdom~~Barrier~~ can determine whether the IP address is correct
 - [x] Get the JSON version of the server motd (only if the server motd is set to JSON format)
+- [x] Does not depend on any external API :)
+- [x] Support special port queries (e.g. `2`, `80`, `443` etc.)
 
 ## Future functions
 
 - [ ] Get server protocol number
 - [ ] Get server official website (if any)
 - [ ] Add configuration file
+- [ ] Query server favicon (waiting for package update)
 - [ ] And more...
 
 ## Test screenshot
@@ -35,10 +37,8 @@ This diagram uses version v0.9↑
 ## How to use
 - Install
   - Put `__init__.py` files `plugins` pp folder or custom folder.
-  - If the module is missing, please execute `pip install ping3`~~(Theoretically, this module must be missing.)~~
 - Use
-  - 查服 [ip]:[port]  {Java}
-  - b查 [ip]:[port]    {Bedrock}
+  - minecheck [ip]:[port]
 
 # I will adapt to English commands as soon as possible.
 
@@ -49,6 +49,11 @@ This diagram uses version v0.9↑
 # Update log
 <details>
 <summary>Update log</summary>
+
+## 2023/01/08
+### v1.0
+Remove external dependencies and use local dependencies
+No longer rely on external API.
 
 ## 2023/01/05
 ### v0.9
@@ -107,3 +112,6 @@ Support JAVA server query.
 
 Support query server delay.
 </details>
+
+# Thanks
+[minestat] (https://github.com/FragLand/minestat): A multi-platform Minecraft server query module
