@@ -116,4 +116,4 @@ Support query server delay.
 </details>
 
 # Thanks
-[minestat] (https://github.com/FragLand/minestat): A multi-platform Minecraft server query module
+[minestat](https://github.com/FragLand/minestat): A multi-platform Minecraft server query module
