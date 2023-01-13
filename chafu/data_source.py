@@ -1,5 +1,5 @@
 #此文件来自包minestat，仓库地址(https://github.com/FragLand/minestat)
-#超时时间在141行，不过好像有点问题
+#超时时间在152行，不过好像有点问题
 # minestat.py - A Minecraft server status checker
 # Copyright (C) 2016-2022 Lloyd Dilley, Felix Ern (MindSolve)
 # http://www.dilley.me/
@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import base64
 import io
 import json
 import socket
@@ -25,7 +26,6 @@ import re
 from time import time, perf_counter
 from enum import Enum
 from typing import Union, Optional
-
 
 class ConnStatus(Enum):
   """
@@ -52,10 +52,14 @@ Contains possible connection states.
   UNKNOWN = -3
   """The connection was established, but the server spoke an unknown/unsupported SLP protocol."""
 
-
 class SlpProtocols(Enum):
   """
 Contains possible SLP (Server List Ping) protocols.
+
+- `ALL`: Try all protocols.
+
+  Attempts to connect to a remote server using all available protocols until an acceptable response
+  is received or until failure.
 
 - `BEDROCK_RAKNET`: The Minecraft Bedrock/Education edition protocol.
 
@@ -89,6 +93,11 @@ Contains possible SLP (Server List Ping) protocols.
 
   def __str__(self) -> str:
     return str(self.name)
+
+  ALL = 5
+  """
+  Attempt to use all protocols.
+  """
 
   BEDROCK_RAKNET = 4
   """
@@ -137,12 +146,24 @@ Contains possible SLP (Server List Ping) protocols.
   """
 
 class MineStat:
-  VERSION = "2.3.1"             # MineStat version
-  DEFAULT_TIMEOUT = 1           # default TCP timeout in seconds
+  VERSION = "2.4.1"             # MineStat version
+  DEFAULT_TCP_PORT = 25565      # default TCP port for SLP queries
+  DEFAULT_BEDROCK_PORT = 19132  # default UDP port for Bedrock/MCPE servers
+  DEFAULT_TIMEOUT = 5           # default TCP timeout in seconds
 
-  def __init__(self, address: str, port: int, timeout: int = DEFAULT_TIMEOUT, query_protocol: SlpProtocols = None) -> None:
+  def __init__(self, address: str, port: int = 0, timeout: int = DEFAULT_TIMEOUT, query_protocol: SlpProtocols = SlpProtocols.ALL) -> None:
     self.address: str = address
-    self.port: int = port
+    """hostname or IP address of the Minecraft server"""
+    autoport: bool = False
+    if port == 0:
+      autoport = True
+      if query_protocol is SlpProtocols.BEDROCK_RAKNET:
+        self.port = self.DEFAULT_BEDROCK_PORT
+      else:
+        self.port = self.DEFAULT_TCP_PORT
+    else:
+      self.port: int = port
+    """port number the Minecraft server accepts connections on"""
     self.online: bool = False
     """online or offline?"""
     self.version: Optional[str] = None
@@ -161,8 +182,14 @@ class MineStat:
     """socket timeout"""
     self.slp_protocol: Optional[SlpProtocols] = None
     """Server List Ping protocol"""
+    self.favicon_b64: Optional[str] = None
+    """base64-encoded favicon possibly contained in JSON 1.7 responses"""
+    self.favicon: Optional[str] = None
+    """decoded favicon data"""
     self.gamemode: Optional[str] = None
     """Bedrock specific: The current game mode (Creative/Survival/Adventure)"""
+    self.connection_status: Optional[ConnStatus] = None
+    """Status of connection ("SUCCESS", "CONNFAIL", "TIMEOUT", or "UNKNOWN")"""
 
     # Future improvement: IPv4/IPv6, multiple addresses
     # If a host has multiple IP addresses or a IPv4 and a IPv6 address,
@@ -173,17 +200,19 @@ class MineStat:
     # See https://docs.python.org/3/library/socket.html#socket.getaddrinfo
 
     # If the user wants a specific protocol, use only that.
-    if query_protocol:
+    result = ConnStatus.UNKNOWN
+    if query_protocol is not SlpProtocols.ALL:
       if query_protocol is SlpProtocols.BETA:
-        self.beta_query()
+        result = self.beta_query()
       elif query_protocol is SlpProtocols.LEGACY:
-        self.legacy_query()
+        result = self.legacy_query()
       elif query_protocol is SlpProtocols.EXTENDED_LEGACY:
-        self.extended_legacy_query()
+        result = self.extended_legacy_query()
       elif query_protocol is SlpProtocols.JSON:
-        self.json_query()
+        result = self.json_query()
       elif query_protocol is SlpProtocols.BEDROCK_RAKNET:
-        self.bedrock_raknet_query()
+        result = self.bedrock_raknet_query()
+      self.connection_status = result
 
       return
 
@@ -194,10 +223,16 @@ class MineStat:
     # A legacy query alone works fine.
 
     # Minecraft Bedrock/Pocket/Education Edition (MCPE/MCEE)
+    if autoport:
+      self.port = self.DEFAULT_BEDROCK_PORT
     result = self.bedrock_raknet_query()
+    self.connection_status = result
 
     if result is ConnStatus.SUCCESS:
       return
+
+    if autoport:
+      self.port = self.DEFAULT_TCP_PORT
 
     # Minecraft 1.4 & 1.5 (legacy SLP)
     result = self.legacy_query()
@@ -213,6 +248,8 @@ class MineStat:
     # Minecraft 1.7+ (JSON SLP)
     if result is not ConnStatus.CONNFAIL:
       self.json_query()
+
+    self.connection_status = result
 
   @staticmethod
   def motd_strip_formatting(raw_motd: Union[str, dict]) -> str:
@@ -453,6 +490,14 @@ class MineStat:
 
     self.max_players = payload_obj["players"]["max"]
     self.current_players = payload_obj["players"]["online"]
+
+    try:
+      self.favicon_b64 = payload_obj["favicon"]
+      if self.favicon_b64:
+        self.favicon = str(base64.b64decode(self.favicon_b64.split("base64,")[1]), 'ISO-8859–1')
+    except KeyError:
+      self.favicon_b64 = None
+      self.favicon = None
 
     # If we got here, everything is in order.
     self.online = True
