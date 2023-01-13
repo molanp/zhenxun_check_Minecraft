@@ -20,13 +20,13 @@
 - [x] Get the JSON version of the server motd (only if the server motd is set to JSON format)
 - [x] Does not depend on any external API :)
 - [x] Support special port queries (e.g. `2`, `80`, `443` etc.)
+- [x] Query server favicon
 
 ## Future functions
 
 - [ ] Get server protocol number
 - [ ] Get server official website (if any)
 - [ ] Add configuration file
-- [ ] Query server favicon (waiting for package update)
 - [ ] And more...
 
 ## Test screenshot
@@ -51,6 +51,10 @@ This diagram uses version v0.9↑
 # Update log
 <details>
 <summary>Update log</summary>
+
+## 2023/01/12
+### v1.1
+Sending favicon is supported.
 
 ## 2023/01/08
 ### v1.0
@@ -116,4 +120,4 @@ Support query server delay.
 </details>
 
 # Thanks
-[minestat](https://github.com/FragLand/minestat): A multi-platform Minecraft server query module
+[minestat] (https://github.com/FragLand/minestat): A multi-platform Minecraft server query module

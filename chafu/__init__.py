@@ -6,7 +6,7 @@ from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.matcher import Matcher
 from utils.http_utils import AsyncHttpx
 from .data_source import *
-import ast#, base64
+import ast, base64
 
 __zx_plugin_name__ = "我的世界查服"
 __plugin_usage__ = """
@@ -25,7 +25,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port / minecheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服","minecheck"]
-__plugin_version__ = 1.0
+__plugin_version__ = 1.1
 __plugin_author__ = "YiRanEL"#觉得还是写GitHub名称比较好
 __plugin_settings__ = {
     "level": 5,
@@ -50,10 +50,12 @@ async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
 @chafu.got("host", prompt="IP是?")
 async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
   if "." not in host_name:  # 如果参数不符合要求，则提示用户重新输入
-    await chafu.reject(host.template("不知道你服务器的IP在哪里，在你心里吗?"))
-  if ":" not in host_name:
-    await chafu.reject(host.template("端口呢端口呢端口呢?"))
+    await chafu.reject(host.template("不知道你服务器的IP在哪里，在你心里吗?"),at_sender=True)
+  if len(host_name.strip().split(':')) == 2:
+    if len(host_name.strip().split(':')[1]) > 5:
+       await chafu.reject('你看看这是正经端口吗？',at_sender=True)
   result = await get_info(host_name)
+  logger.error(host_name[host_name.find(':'):])
   await chafu.finish(result)
 
 async def get_info(host_name: str):
@@ -62,33 +64,32 @@ async def get_info(host_name: str):
         ip = host.split(':')[0]
         try:
           port = host.split(':')[1]
+          ms = MineStat(ip,int(port),timeout=1)
         except:
-          port = '25565'
+          ms = MineStat(ip,timeout=1)
         finally:
-          if len(port) <= 5:
-            ms = MineStat(ip,int(port),timeout=1)
             if ms.online:
               #JSON_motd = 'JSON版motd: %s' % ms.motd
-              result = f'\n名称：{ms.version}\n协议：{ms.slp_protocol}\n地址：{ip}\n端口：{port}\n延迟：{ms.latency}ms\nmotd：{ms.stripped_motd}\n人数：{ms.current_players}/{ms.max_players}'
+              result = f'\n名称：{ms.version}\n协议：{ms.slp_protocol}\n地址：{ip}\n端口：{ms.port}\n延迟：{ms.latency}ms\nmotd：{ms.stripped_motd}\n人数：{ms.current_players}/{ms.max_players}\n状态：{ms.connection_status}\nfavicon：'
               # Bedrock specific attribute:
               if ms.slp_protocol is SlpProtocols.BEDROCK_RAKNET:
-                result = f'\n名称：{ms.version}\n协议：{ms.slp_protocol}\n游戏模式：{ms.gamemode}\n地址：{ip}\n端口：{port}\n延迟：{ms.latency}ms\nmotd：{ms.stripped_motd}\n人数：{ms.current_players}/{ms.max_players}'
+                result = f'\n名称：{ms.version}\n协议：{ms.slp_protocol}\n游戏模式：{ms.gamemode}\n地址：{ip}\n端口：{ms.port}\n延迟：{ms.latency}ms\nmotd：{ms.stripped_motd}\n人数：{ms.current_players}/{ms.max_players}\n状态：{ms.connection_status}'
+              #if ms.connection_status == "SUCCESS" or ms.connection_status == "success":
+                         ######发送favicon###
+              try:
+                base0 = str(ms.favicon_b64)
+                if base0 != None and base0 != '':
+                  base = base0[22:]
+                  img = base64.b64decode(base)
+              except:
+                pass
+              else:
+                  result = Message ([
+                  MessageSegment.text(result),
+                  MessageSegment.image(img)
+                  ])
             else:
               result = 'Server is offline!'
-          else:
-            result ='你看看这是正经端口吗？'
-           ######发送favicon###
-           #if status != "error":
-             #base0 = str(f'{data["favicon"]}')
-             #if base0 != "null":
-               #base = base0[22:]
-               #img = base64.b64decode(base)
-               #end = Message ([
-                  #MessageSegment.text(result),
-                  #MessageSegment.image(img)
-               #])
-           #else:
-             #end = result
         await chafu.send(Message(result), at_sender=True)
     except BaseException as e:
       error = f"查服发生了一些错误:\n{format(e)}"
