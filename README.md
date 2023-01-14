@@ -1,5 +1,7 @@
 # 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
-# 中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README_en.md)
+
+简体中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README_en.md)
+
 ## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
 ## 如果你需要单文件的旧版本，请切换到分支`old`
@@ -21,12 +23,12 @@
 - [x] 不依赖任何外部api
 - [x] 支持特殊端口查询(如`2`,`80`,`443`等)
 - [x] 查询服务器favicon
+- [x] 多语言
 
 ## 未来的功能
 
 - [ ] 获取服务器协议号
 - [ ] 获取服务器官网[如果存在]
-- [ ] 添加配置文件
 - [ ] 敬请期待
 
 ## 测试截图
@@ -41,18 +43,20 @@
   - 将`chafu`文件夹放入`plugins`文件夹或自定义文件夹内
 - 使用
   - 查服 [ip]:[port]
+  - 显示语言 (查看当前输出语言)
+  - 设置语言 [Language] (设置输出语言)
 
-# 下载地址
-
-## 建议直接copy源码，releases内更新不及时
-[下载地址](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
+# [下载地址](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
 # 更新日志
 <details>
 <summary>更新日志</summary>
 
+## 2023/01/14
+socket返回值进行容错处理
+多语言文件配置
+
 ## 2023/01/12
-### v1.1
 支持发送favicon
 
 ## 2023/01/08
