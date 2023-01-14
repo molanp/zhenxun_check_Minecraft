@@ -136,7 +136,7 @@ async def change(language:str):
   try:
     a = lang_data[language]
   except:
-    return 'No this language!'
+    return f'No language named {language}!'
   else:
     lang = language
     return f'Change to {language} success!'
