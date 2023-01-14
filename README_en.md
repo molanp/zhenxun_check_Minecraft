@@ -1,5 +1,7 @@
-# Minecraft_server_plugins.Adaptation [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
-# English|[中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README.md)
+# Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
+
+English|[简体中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README.md)
+
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
 ## If you need an older version of a single file, switch to branch `old`
@@ -21,12 +23,12 @@
 - [x] Does not depend on any external API :)
 - [x] Support special port queries (e.g. `2`, `80`, `443` etc.)
 - [x] Query server favicon
+- [x] Multilingual
 
 ## Future functions
 
 - [ ] Get server protocol number
 - [ ] Get server official website (if any)
-- [ ] Add configuration file
 - [ ] And more...
 
 ## Test screenshot
@@ -38,22 +40,25 @@ This diagram uses version v0.9↑
 
 ## How to use
 - Install
-  - Put `__init__.py` files `plugins` pp folder or custom folder.
+  - Put `chafu` folder in `plugins` folder or custom folder.
 - Use
   - minecheck [ip]:[port]
+  - lang_now (view current output language)
+  - set_lang [Language] (set output language)
 
 # I will adapt to English commands as soon as possible.
 
-# Download
-
-[Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
+# [Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
 # Update log
 <details>
 <summary>Update log</summary>
 
+## 2023/01/14
+The socket return value is fault-tolerant
+Multilingual file configuration
+
 ## 2023/01/12
-### v1.1
 Sending favicon is supported.
 
 ## 2023/01/08
