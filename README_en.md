@@ -55,6 +55,7 @@ This diagram uses version v0.9↑
 <summary>Update log</summary>
 
 ## 2023/01/14
+### v1.1
 The socket return value is fault-tolerant
 Multilingual file configuration
 
