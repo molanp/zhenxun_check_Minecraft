@@ -1,6 +1,6 @@
 # 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
-简体中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README_en.md)
+简体中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/main/README_en.md)
 
 ## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
