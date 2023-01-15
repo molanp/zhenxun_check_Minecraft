@@ -1,6 +1,6 @@
 # Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
-English|[简体中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/master/README.md)
+English|[简体中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/main/README.md)
 
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
