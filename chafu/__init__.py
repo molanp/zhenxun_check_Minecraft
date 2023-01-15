@@ -137,12 +137,14 @@ async def change(language:str):
   try:
     a = lang_data[language]
   except:
-    return f'No language named {language}!'
+    return f'No language named "{language}"!'
   else:
-    lang = language
-    return f'Change to {language} success!'
+    if language == lang:
+      return f'The language is already "{language}"!'
+    else:
+      lang = language
+      return f'Change to "{language}" success!'
     
 @lang_now.handle()
 async def _(bot: Bot, event: Event):
   await lang_now.send(Message(f' Language: {lang}.'),at_sender=True)
-
