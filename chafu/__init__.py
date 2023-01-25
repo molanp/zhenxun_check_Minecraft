@@ -100,7 +100,7 @@ async def get_info(host_name: str):
                 else:
                   result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
               # Send favicon
-              if ms.favicon != None:
+              if ms.favicon_b64 != None:
                 try:
                   base0 = str(ms.favicon_b64)
                   if base0 != None and base0 != '':
