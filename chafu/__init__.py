@@ -89,9 +89,9 @@ async def get_info(host_name: str):
               elif ms.connection_status == ConnStatus.UNKNOWN:
                 status = f'{ms.connection_status}|{lang_data[lang]["status_unknown"]}'
               if Config.get_config("chafu", "JSON_JAVA"):
-                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\nfavicon：'
+                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
               else:
-                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\nfavicon：'
+                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
               # Bedrock specific attribute:
               #if ms.gamemode:
               if 'BEDROCK' in str(ms.slp_protocol):
@@ -110,7 +110,7 @@ async def get_info(host_name: str):
                   pass
                 else:
                     result = Message ([
-                    MessageSegment.text(result),
+                    MessageSegment.text(f'{result}favicon:'),
                     MessageSegment.image(img)
                     ])
             else:
