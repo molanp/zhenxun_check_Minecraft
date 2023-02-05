@@ -1,4 +1,3 @@
-# https://github.com/FragLand/minestat
 # minestat.py - A Minecraft server status checker
 # Copyright (C) 2016-2023 Lloyd Dilley, Felix Ern (MindSolve)
 # http://www.dilley.me/
@@ -22,9 +21,12 @@ import json
 import socket
 import struct
 import re
-from time import time, perf_counter
+import ipaddress
 from enum import Enum
-from typing import Union, Optional
+from time import time, perf_counter
+from typing import Union, Optional, Tuple
+import .dns.resolver
+
 
 class ConnStatus(Enum):
   """
@@ -50,6 +52,7 @@ Contains possible connection states.
 
   UNKNOWN = -3
   """The connection was established, but the server spoke an unknown/unsupported SLP protocol."""
+
 
 class SlpProtocols(Enum):
   """
@@ -144,24 +147,55 @@ Contains possible SLP (Server List Ping) protocols.
   *Available since Minecraft Beta 1.8*
   """
 
-class MineStat:
-  VERSION = "2.4.2"             # MineStat version
-  DEFAULT_TCP_PORT = 25565      # default TCP port for SLP queries
-  DEFAULT_BEDROCK_PORT = 19132  # default UDP port for Bedrock/MCPE servers
-  DEFAULT_TIMEOUT = 5           # default TCP timeout in seconds
 
-  def __init__(self, address: str, port: int = 0, timeout: int = DEFAULT_TIMEOUT, query_protocol: SlpProtocols = SlpProtocols.ALL) -> None:
+class MineStat:
+  VERSION = "2.5.1"
+  """The MineStat version"""
+  DEFAULT_TCP_PORT = 25565
+  """default TCP port for SLP queries"""
+  DEFAULT_BEDROCK_PORT = 19132
+  """default UDP port for Bedrock/MCPE servers"""
+  DEFAULT_TIMEOUT = 5
+  """default TCP timeout in seconds"""
+
+  def __init__(self,
+               address: str,
+               port: int = 0,
+               timeout: int = DEFAULT_TIMEOUT,
+               query_protocol: SlpProtocols = SlpProtocols.ALL,
+               resolve_srv: Optional[bool] = None) -> None:
+    """
+    minestat - The Minecraft status checker. Supports Minecraft Java edition and Bedrock/Education/PE servers.
+
+    :param address: Hostname or IP address of the Minecraft server.
+    :param port: Optional port of the Minecraft server. Defaults to auto detection (25565 for Java Edition, 19132 for Bedrock/MCPE).
+    :param timeout: Optional timeout in seconds for each connection attempt. Defaults to 5 seconds.
+    :param query_protocol: Optional protocol to use. See minestat.SlpProtocols for available choices. Defaults to auto detection.
+    :param resolve_srv: Optional, whether to resolve Minecraft SRV records. Requires dnspython to be installed.
+    """
+
+    self.__resolve_srv: Optional[bool] = resolve_srv
+    """Whether to resolved SRV records"""
+
     self.address: str = address
     """hostname or IP address of the Minecraft server"""
+
     autoport: bool = False
-    if port == 0:
+    if not port:
       autoport = True
+
       if query_protocol is SlpProtocols.BEDROCK_RAKNET:
-        self.port = self.DEFAULT_BEDROCK_PORT
+        port = self.DEFAULT_BEDROCK_PORT
+
       else:
-        self.port = self.DEFAULT_TCP_PORT
-    else:
-      self.port: int = port
+        addr, port = self._resolve_srv_record(self.address)
+        if not port or not addr:
+          port = self.DEFAULT_TCP_PORT
+
+        else:
+          self.address = addr
+
+    self.port: int = port
     """port number the Minecraft server accepts connections on"""
     self.online: bool = False
     """online or offline?"""
@@ -187,6 +221,8 @@ class MineStat:
     """decoded favicon data"""
     self.gamemode: Optional[str] = None
     """Bedrock specific: The current game mode (Creative/Survival/Adventure)"""
+    self.srv_record: Optional[bool] = None
+    """wether the server has a SRV record"""
     self.connection_status: Optional[ConnStatus] = None
     """Status of connection ("SUCCESS", "CONNFAIL", "TIMEOUT", or "UNKNOWN")"""
 
@@ -224,6 +260,7 @@ class MineStat:
     # Minecraft Bedrock/Pocket/Education Edition (MCPE/MCEE)
     if autoport:
       self.port = self.DEFAULT_BEDROCK_PORT
+
     result = self.bedrock_raknet_query()
     self.connection_status = result
 
@@ -231,7 +268,12 @@ class MineStat:
       return
 
     if autoport:
-      self.port = self.DEFAULT_TCP_PORT
+      addr, self.port = self._resolve_srv_record(self.address)
+      if not self.port:
+        self.port = self.DEFAULT_TCP_PORT
+
+      else:
+        self.address = addr
 
     # Minecraft 1.4 & 1.5 (legacy SLP)
     result = self.legacy_query()
@@ -275,6 +317,70 @@ class MineStat:
 
     return stripped_motd
 
+  @staticmethod
+  def __ip_check(addr: str) -> bool:
+    """
+    Method to check if given address is an ip address or a hostname. Supports IPv4 and IPv6 addresses.
+
+    :returns: True when the given address is an ip address.
+    """
+    try:
+      ipaddress.ip_address(addr)
+      return True
+    # catch ValueError (caused when trying to parse an invalid IP address)
+    except ValueError:
+      return False
+
+  def _resolve_srv_record(self, addr: str) -> Tuple[str, int]:
+    """
+    Method to resolve a Minecraft Java edition SRV record from a given address.
+
+    Behaviour is dependent on the parameter `resolve_srv`.
+    If the user didn't explicitly choose do disable or enable SRV resolution, resolution is tried but will not raise an
+    exception if dnspython is not installed, instead displaying only a warning.
+    If the user explicitly choose to enable SRV resolution and dnspython is not available, an Error is raised.
+    If the user explicitly choose to disable SRV resoltion, it is skipped.
+    """
+    # Check if we should resolve SRV records
+    if self.__resolve_srv is False:
+      return "", 0
+
+    # Check if addr is an IP address
+    if self.__ip_check(addr):
+      # address is an ip address
+      self.srv_record = False
+      return "", 0
+
+    # Check if required dependency dnspython is installed
+    try:
+      temp = None
+    except ImportError as e:
+      error_text: str = "SRV resolution was attempted without having dependency 'dnspython' installed. " \
+                        "Either explicitly disable SRV resolution with the parameter 'resolve_srv' " \
+                        "set to False in minestat.MineStat, or install 'dnspython'."
+
+      # Parameter resolve_srv is unset, warn and skip resolution
+      if self.__resolve_srv is None:
+        import warnings
+        warnings.warn(error_text + "\nSRV resolution will be skipped.")
+        return "", 0
+
+      # Parameter resolve_srv is True, error out
+      raise RuntimeError(error_text) from e
+
+    srv_prefix: str = f"_minecraft._tcp."
+    try:
+
+      srv_record: dns.rdtypes.IN.SRV.SRV = dns.resolver.resolve(srv_prefix + addr, "SRV")[0]  # only use the first SRV record returned
+      srv_port: int = int(srv_record.port)
+      srv_host: str = str(srv_record.target).rstrip(".")
+      self.srv_record = True
+      return srv_host, srv_port
+
+    except Exception:
+      self.srv_record = False
+      return "", 0
+
   def bedrock_raknet_query(self) -> ConnStatus:
     """
     Method for querying a Bedrock server (Minecraft PE, Windows 10 or Education Edition).
@@ -305,7 +411,7 @@ class MineStat:
     # Packet ID - 0x01
     req_data = bytearray([0x01])
     # current unix timestamp in ms as signed long (64-bit) LE-encoded
-    req_data += struct.pack("<q", int(time()*1000))
+    req_data += struct.pack("<q", int(time() * 1000))
     # RakNet MAGIC (0x00ffff00fefefefefdfdfdfd12345678)
     req_data += RAKNET_MAGIC
     # Client GUID - as signed long (64-bit) LE-encoded
@@ -375,16 +481,16 @@ class MineStat:
     self.current_players = int(payload["current_players"])
     self.max_players = int(payload["max_players"])
     try:
-      self.version = payload["version"] + " " + payload["motd_2"] + " " + "(" + payload["edition"] + ")"
-    except KeyError: # older Bedrock server versions do not respond with the secondary MotD.
-      self.version = payload["version"] + " " + "(" + payload["edition"] + ")"
+      self.version = payload["version"] + " " + payload["motd_2"] + " (" + payload["edition"] + ")"
+    except KeyError:  # older Bedrock server versions do not respond with the secondary MotD.
+      self.version = payload["version"] + " (" + payload["edition"] + ")"
 
     self.motd = payload["motd_1"]
     self.stripped_motd = self.motd_strip_formatting(self.motd)
 
     try:
       self.gamemode = payload["gamemode"]
-    except KeyError: # older Bedrock server versions do not respond with the game mode.
+    except KeyError:  # older Bedrock server versions do not respond with the game mode.
       self.gamemode = None
 
     return ConnStatus.SUCCESS
