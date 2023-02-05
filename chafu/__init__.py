@@ -75,9 +75,9 @@ async def get_info(host_name: str):
         ip = host.split(':')[0]
         try:
           port = host.split(':')[1]
-          ms = MineStat(ip,int(port),timeout=1)
+          ms = MineStat(ip,int(port),timeout=1,resolve_srv=True)
         except:
-          ms = MineStat(ip,timeout=1)
+          ms = MineStat(ip,timeout=1,resolve_srv=True)
         finally:
             if ms.online:
               if ms.connection_status == ConnStatus.SUCCESS:
