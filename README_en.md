@@ -47,8 +47,6 @@ This diagram uses version v0.9↑
   - lang_now (view current output language)
   - set_lang [Language] (set output language)
 
-# I will adapt to English commands as soon as possible.
-
 # [Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
 # Update log
