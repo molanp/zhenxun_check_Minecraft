@@ -24,6 +24,7 @@
 - [x] 支持特殊端口查询(如`2`,`80`,`443`等)
 - [x] 查询服务器favicon
 - [x] 多语言
+- [x] SRV支持
 
 ## 未来的功能
 
@@ -51,6 +52,9 @@
 # 更新日志
 <details>
 <summary>更新日志</summary>
+
+## 2023/02/05
+SRV解析支持
 
 ## 2023/01/14
 ### v1.1
@@ -117,6 +121,11 @@ socket返回值进行容错处理
 支持发送延迟
 
 </details>
+
+#依赖
+```powershell
+pip install dnspython
+```
 
 # 感谢
 [minestat](https://github.com/FragLand/minestat): 一个多平台语言的我的世界服务器查询模块
