@@ -25,7 +25,7 @@ import ipaddress
 from enum import Enum
 from time import time, perf_counter
 from typing import Union, Optional, Tuple
-import .dns.resolver
+import dns.resolver
 
 
 class ConnStatus(Enum):
