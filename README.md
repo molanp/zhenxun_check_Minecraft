@@ -122,7 +122,7 @@ socket返回值进行容错处理
 
 </details>
 
-#依赖
+# 依赖
 ```powershell
 pip install dnspython ~= 2.2.1
 ```
