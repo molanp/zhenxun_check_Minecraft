@@ -24,6 +24,7 @@ English|[简体中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/ma
 - [x] Support special port queries (e.g. `2`, `80`, `443` etc.)
 - [x] Query server favicon
 - [x] Multilingual
+- [x] SRV support 
 
 ## Future functions
 
@@ -53,6 +54,9 @@ This diagram uses version v0.9↑
 # Update log
 <details>
 <summary>Update log</summary>
+  
+## 2023/02/05
+SRV support
 
 ## 2023/01/14
 ### v1.1
@@ -124,6 +128,11 @@ Support JAVA server query.
 
 Support query server delay.
 </details>
+
+# depend
+```powershell
+pip install dnspython ~= 2.2.1
+```
 
 # Thanks
 [minestat] (https://github.com/FragLand/minestat): A multi-platform Minecraft server query module
