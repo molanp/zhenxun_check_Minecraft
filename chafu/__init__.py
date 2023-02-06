@@ -28,7 +28,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port / minecheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服/minecheck","设置语言/set_lang","当前语言/lang_now"]
-__plugin_version__ = 1.1
+__plugin_version__ = 1.2
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
