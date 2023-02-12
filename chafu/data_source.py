@@ -25,7 +25,6 @@ import ipaddress
 from enum import Enum
 from time import time, perf_counter
 from typing import Union, Optional, Tuple
-import dns.resolver
 
 
 class ConnStatus(Enum):
@@ -353,7 +352,7 @@ class MineStat:
 
     # Check if required dependency dnspython is installed
     try:
-      temp = None
+      import dns.resolver
     except ImportError as e:
       error_text: str = "SRV resolution was attempted without having dependency 'dnspython' installed. " \
                         "Either explicitly disable SRV resolution with the parameter 'resolve_srv' " \
