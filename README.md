@@ -41,7 +41,7 @@
 
 ## 使用方法
 - 安装
-  - 将`chafu`文件夹放入`plugins`文件夹或自定义文件夹内
+  - 将`mc_check`文件夹放入`extensive_plugin`文件夹或自定义文件夹内
 - 使用
   - 查服 [ip]:[port]
   - 显示语言 (查看当前输出语言)
@@ -52,6 +52,9 @@
 # 更新日志
 <details>
 <summary>更新日志</summary>
+
+## 2023/02/22
+[添加对Query / GamSpot4 / UT3协议(python)的支持](https://github.com/FragLand/minestat/pull/166)
 
 ## 2023/02/05
 SRV解析支持

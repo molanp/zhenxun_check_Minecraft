@@ -41,7 +41,7 @@ This diagram uses version v0.9↑
 
 ## How to use
 - Install
-  - Put `chafu` folder in `plugins` folder or custom folder.
+  - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
 - Use
   - minecheck [ip]:[port]
   - lang_now (view current output language)
