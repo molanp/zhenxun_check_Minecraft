@@ -54,9 +54,11 @@
 <summary>更新日志</summary>
 
 ## 2023/02/22
+### v1.3
 [添加对Query / GamSpot4 / UT3协议(python)的支持](https://github.com/FragLand/minestat/pull/166)
 
 ## 2023/02/05
+### v1.2
 SRV解析支持
 
 ## 2023/01/14
