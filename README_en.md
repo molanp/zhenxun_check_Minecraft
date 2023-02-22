@@ -52,8 +52,13 @@ This diagram uses version v0.9↑
 # Update log
 <details>
 <summary>Update log</summary>
+
+## 2023/02/22
+### v1.3
+[add support for the Query / GamSpot4 / UT3 protocol](https://github.com/FragLand/minestat/pull/166)
   
 ## 2023/02/05
+### v1.2
 SRV support
 
 ## 2023/01/14
