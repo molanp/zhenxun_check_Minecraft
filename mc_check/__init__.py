@@ -39,7 +39,7 @@ __plugin_settings__ = {
 __plugin_configs__ = {
     "JSON_BDS": {"value": False, "help": "基岩版查服是否显示json版motd|Bedrock Edition checks whether the JSON version of MODD is displayed", "default_value": False},
     "JSON_JAVA": {"value": False, "help": "JAVA版查服是否显示json版motd|Java Edition checks whether the JSON version of motd is displayed", "default_value": False},
-    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese or English)"}
+    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese or English)", "default_value": “Chinese”}
 }
 
 def readInfo(file):
