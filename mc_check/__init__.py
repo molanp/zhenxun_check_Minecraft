@@ -28,7 +28,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port / minecheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服/minecheck","设置语言/set_lang","当前语言/lang_now"]
-__plugin_version__ = 1.3
+__plugin_version__ = 1.4
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
@@ -47,28 +47,28 @@ def readInfo(file):
         return ujson.loads((f.read()).strip())
 
 path = os.path.dirname(__file__)
-lang = Config.get_config("chafu", "LANGUAGE")
+lang = Config.get_config("mc_check", "LANGUAGE")
 if lang == None: 
   lang = "Chinese"
 lang_data = readInfo("language.json")
 
-chafu = on_command("查服", aliases={'minecheck'}, priority=5, block=True)
+check = on_command("查服", aliases={'minecheck'}, priority=5, block=True)
 lang_change = on_command("设置语言",aliases={'set_lang'},priority=5,block=True)
 lang_now = on_command("当前语言",aliases={'lang_now'},priority=5,block=True)
 
-@chafu.handle()
+@check.handle()
 async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
     plain_text = args.extract_plain_text()
     if plain_text:
         matcher.set_arg("host", args)
 
-@chafu.got("host", prompt="IP?")
+@check.got("host", prompt="IP?")
 async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
   if "." not in host_name:
-    await chafu.reject(host.template(lang_data[lang]["where_ip"]),at_sender=True)
+    await check.reject(host.template(lang_data[lang]["where_ip"]),at_sender=True)
   if len(host_name.strip().split(':')) == 2:
     if len(host_name.strip().split(':')[1]) > 5:
-       await chafu.reject(lang_data[lang]["where_port"],at_sender=True)
+       await check.reject(lang_data[lang]["where_port"],at_sender=True)
   await get_info(host_name)
 
 async def get_info(host_name: str):
@@ -90,19 +90,19 @@ async def get_info(host_name: str):
                 status = f'{ms.connection_status}|{lang_data[lang]["status_timeout"]}'
               elif ms.connection_status == ConnStatus.UNKNOWN:
                 status = f'{ms.connection_status}|{lang_data[lang]["status_unknown"]}'
-              if Config.get_config("chafu", "JSON_JAVA"):
+              if Config.get_config("mc_check", "JSON_JAVA"):
                 result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
               else:
                 result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
               # Bedrock specific attribute:
               #if ms.gamemode:
               if 'BEDROCK' in str(ms.slp_protocol):
-                if Config.get_config("chafu", "JSON_BDS"):
+                if Config.get_config("mc_check", "JSON_BDS"):
                   result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
                 else:
                   result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
               # Send favicon
-              if ms.favicon_b64 != None:
+              if ms.favicon_b64 != None and ms.favicon_b64 != "":
                 try:
                   base0 = str(ms.favicon_b64)
                   if base0 != None and base0 != '':
@@ -117,11 +117,11 @@ async def get_info(host_name: str):
                     ])
             else:
               result = lang_data[lang]["offline"]
-        await chafu.send(Message(result), at_sender=True)
+        await check.send(Message(result), at_sender=True)
     except BaseException as e:
       error = f'ERROR:\n{format(e)}'
       logger.error(f'ERROR\n{format(e)}')
-      await chafu.send(Message(error), at_sender=True)
+      await check.send(Message(error), at_sender=True)
 
 @lang_change.handle()
 async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):

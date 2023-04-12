@@ -2,6 +2,8 @@
 
 简体中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/main/README_en.md)
 
+# 注意，请确保插件文件夹名字为`mc_check`，否则无法获取配置信息
+
 ## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
 ## 如果你需要单文件的旧版本，请切换到分支`old`
