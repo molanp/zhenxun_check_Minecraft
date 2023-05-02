@@ -20,26 +20,28 @@ usage：
         查服 [ip]:[端口] / 查服 [ip]
         设置语言 Chinese
         当前语言
+        语言列表
     eg:
-        minecheck ip:port / minecheck ip
+        mcheck ip:port / mcheck ip
         set_lang English
         lang_now
+        lang_list
 """.strip()
-__plugin_des__ = "用法：查服 ip:port / minecheck ip:port"
+__plugin_des__ = "用法：查服 ip:port / mcheck ip:port"
 __plugin_type__ = ("一些工具",)
-__plugin_cmd__ = ["查服/minecheck","设置语言/set_lang","当前语言/lang_now"]
+__plugin_cmd__ = ["查服/mcheck","设置语言/set_lang","当前语言/lang_now","语言列表/lang_list"]
 __plugin_version__ = 1.4
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
     "default_status": True,
     "limit_superuser": False,
-    "cmd": ["查服",'minecheck','设置语言','set_lang','当前语言','lang_now'],
+    "cmd": ["查服",'mcheck','设置语言','set_lang','当前语言','lang_now',"语言列表","lang_list"],
 }
 __plugin_configs__ = {
     "JSON_BDS": {"value": False, "help": "基岩版查服是否显示json版motd|Bedrock Edition checks whether the JSON version of MODD is displayed", "default_value": False},
     "JSON_JAVA": {"value": False, "help": "JAVA版查服是否显示json版motd|Java Edition checks whether the JSON version of motd is displayed", "default_value": False},
-    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese or English)", "default_value": "Chinese"}
+    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese , English etc.)", "default_value": "Chinese"}
 }
 
 def readInfo(file):
@@ -52,9 +54,10 @@ if lang == None:
   lang = "Chinese"
 lang_data = readInfo("language.json")
 
-check = on_command("查服", aliases={'minecheck'}, priority=5, block=True)
+check = on_command("查服", aliases={'mcheck'}, priority=5, block=True)
 lang_change = on_command("设置语言",aliases={'set_lang'},priority=5,block=True)
 lang_now = on_command("当前语言",aliases={'lang_now'},priority=5,block=True)
+lang_list = on_command("语言列表", aliases={'lang_list'}, priority=5, block=True)
 
 @check.handle()
 async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
@@ -91,16 +94,16 @@ async def get_info(host_name: str):
               elif ms.connection_status == ConnStatus.UNKNOWN:
                 status = f'{ms.connection_status}|{lang_data[lang]["status_unknown"]}'
               if Config.get_config("mc_check", "JSON_JAVA"):
-                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
+                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
               else:
-                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
+                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
               # Bedrock specific attribute:
               #if ms.gamemode:
               if 'BEDROCK' in str(ms.slp_protocol):
                 if Config.get_config("mc_check", "JSON_BDS"):
-                  result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
+                  result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
                 else:
-                  result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ms.address}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
+                  result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
               # Send favicon
               if ms.favicon_b64 != None and ms.favicon_b64 != "":
                 try:
@@ -119,8 +122,8 @@ async def get_info(host_name: str):
               result = lang_data[lang]["offline"]
         await check.send(Message(result), at_sender=True)
     except BaseException as e:
-      error = f'ERROR:\n{format(e)}'
-      logger.error(f'ERROR\n{format(e)}')
+      error = f'ERROR:\n{e}'
+      logger.error(f'ERROR\n{e}')
       await check.send(Message(error), at_sender=True)
 
 @lang_change.handle()
@@ -148,5 +151,10 @@ async def change(language:str):
       return f'Change to "{language}" success!'
     
 @lang_now.handle()
-async def _(bot: Bot, event: Event):
+async def _():
   await lang_now.send(Message(f' Language: {lang}.'),at_sender=True)
+
+@lang_list.handle()
+async def _():
+  i = '\n'.join(list(lang_data.keys()))
+  await lang_list.send(Message(f"Language:\n{i}"),at_sender=True)
