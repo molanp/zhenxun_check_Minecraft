@@ -120,12 +120,14 @@ async def get_info(host_name: str):
                     ])
             else:
               result = lang_data[lang]["offline"]
-        await check.send(Message(result), at_sender=True)
+    except UnboundLocalError:
+      result = 'Dnspython is not installed!\nUse [pip install dnspython] to install'
+    except UnicodeDecodeError:
+      result = f'The information decoding failed for the following reasons:\n{lang_data[lang]["offline"]}'
     except BaseException as e:
-      error = f'ERROR:\n{e}'
+      result = f'ERROR:\n{e}'
       logger.error(f'ERROR\n{e}')
-      await check.send(Message(error), at_sender=True)
-
+    await check.send(Message(result), at_sender=True)
 @lang_change.handle()
 async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
     plain_text = args.extract_plain_text()
