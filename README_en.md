@@ -134,7 +134,7 @@ Support query server delay.
 
 # depend
 ```powershell
-pip install dnspython
+pip install "dnspython>=2.2.1,<2.5.0"
 ```
 
 # Thanks
