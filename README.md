@@ -1,6 +1,6 @@
 # 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
-简体中文|[English](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/main/README_en.md)
+简体中文|[English](README_en.md)
 
 # 注意，请确保插件文件夹名字为`mc_check`，否则无法获取配置信息
 
@@ -54,6 +54,10 @@
 # 更新日志
 <details>
 <summary>更新日志</summary>
+
+## 2023/11/01
+### v1.5
+修复SRV解析
 
 ## 2023/02/22
 ### v1.3
