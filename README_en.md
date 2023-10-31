@@ -43,7 +43,7 @@ This diagram uses version v0.9↑
 - Install
   - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
 - Use
-  - minecheck [ip]:[port]
+  - mcheck [ip]:[port]
   - lang_now (view current output language)
   - set_lang [Language] (set output language)
 
