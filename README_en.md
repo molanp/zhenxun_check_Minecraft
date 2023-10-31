@@ -1,6 +1,6 @@
 # Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
-English|[简体中文](https://github.com/molanp/zhenxun_chafu_Minecraft/blob/main/README.md)
+English|[简体中文](README.md)
 
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
@@ -52,6 +52,10 @@ This diagram uses version v0.9↑
 # Update log
 <details>
 <summary>Update log</summary>
+
+## 2023/11/01
+### v1.5
+fix SRV resolver
 
 ## 2023/02/22
 ### v1.3
