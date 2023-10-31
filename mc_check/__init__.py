@@ -10,7 +10,11 @@ from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.matcher import Matcher
 from configs.config import Config
 from .data_source import *
-import base64, os, ujson
+import base64, os, ujson, dns.resolver
+
+dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
+
+dns.resolver.default_resolver.nameservers = ['223.5.5.5', '1.1.1.1']
 
 __zx_plugin_name__ = "我的世界查服"
 __plugin_usage__ = """
@@ -47,6 +51,27 @@ __plugin_configs__ = {
 def readInfo(file):
     with open(os.path.join(path, file), "r", encoding="utf-8") as f:
         return ujson.loads((f.read()).strip())
+        
+def resolve_srv(hostname):
+    ip = hostname.split(':')[0]
+    try:
+        port = int(hostname.split(':')[1])
+    except:
+        port = 0
+    try:
+        # 解析 SRV 记录
+        result = dns.resolver.query('_minecraft._tcp.' + ip, 'SRV', raise_on_no_answer=False)
+        
+        # 获取真正的地址和端口
+        for rdata in result:
+            address = str(rdata.target).strip('.')
+            port = rdata.port
+            return [address, port]
+    except dns.resolver.NXDOMAIN:
+        pass
+    
+    # 如果没有找到 SRV 记录，则返回原始的地址和默认端口
+    return [hostname, port]
 
 path = os.path.dirname(__file__)
 lang = Config.get_config("mc_check", "LANGUAGE")
@@ -68,60 +93,55 @@ async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
 @check.got("host", prompt="IP?")
 async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
   if "." not in host_name:
-    await check.reject(host.template(lang_data[lang]["where_ip"]),at_sender=True)
+    await check.finish(host.template(lang_data[lang]["where_ip"]),at_sender=True)
   if len(host_name.strip().split(':')) == 2:
     if len(host_name.strip().split(':')[1]) > 5:
-       await check.reject(lang_data[lang]["where_port"],at_sender=True)
+       await check.finish(lang_data[lang]["where_port"],at_sender=True)
   await get_info(host_name)
 
 async def get_info(host_name: str):
     try:
         host = host_name.strip()
-        ip = host.split(':')[0]
-        try:
-          port = host.split(':')[1]
-          ms = MineStat(ip,int(port),timeout=1,resolve_srv=True)
-        except:
-          ms = MineStat(ip,timeout=1,resolve_srv=True)
-        finally:
-            if ms.online:
-              if ms.connection_status == ConnStatus.SUCCESS:
-                status = f'{ms.connection_status}|{lang_data[lang]["status_success"]}'
-              elif ms.connection_status == ConnStatus.CONNFAIL:
-                status = f'{ms.connection_status}|{lang_data[lang]["status_connfail"]}'
-              elif ms.connection_status == ConnStatus.TIMEOUT:
-                status = f'{ms.connection_status}|{lang_data[lang]["status_timeout"]}'
-              elif ms.connection_status == ConnStatus.UNKNOWN:
-                status = f'{ms.connection_status}|{lang_data[lang]["status_unknown"]}'
-              if Config.get_config("mc_check", "JSON_JAVA"):
-                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
-              else:
-                result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
-              # Bedrock specific attribute:
-              #if ms.gamemode:
-              if 'BEDROCK' in str(ms.slp_protocol):
-                if Config.get_config("mc_check", "JSON_BDS"):
-                  result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
-                else:
-                  result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
-              # Send favicon
-              if ms.favicon_b64 != None and ms.favicon_b64 != "":
-                try:
-                  base0 = str(ms.favicon_b64)
-                  if base0 != None and base0 != '':
-                    base = base0[22:]
-                    img = base64.b64decode(base)
-                except:
-                  pass
-                else:
-                    result = Message ([
-                    MessageSegment.text(f'{result}favicon:'),
-                    MessageSegment.image(img)
-                    ])
+        srv = resolve_srv(host)
+        ms = MineStat(srv[0], srv[1], timeout=1)
+        if ms.online:
+          if ms.connection_status == ConnStatus.SUCCESS:
+            status = f'{ms.connection_status}|{lang_data[lang]["status_success"]}'
+          elif ms.connection_status == ConnStatus.CONNFAIL:
+            status = f'{ms.connection_status}|{lang_data[lang]["status_connfail"]}'
+          elif ms.connection_status == ConnStatus.TIMEOUT:
+            status = f'{ms.connection_status}|{lang_data[lang]["status_timeout"]}'
+          elif ms.connection_status == ConnStatus.UNKNOWN:
+            status = f'{ms.connection_status}|{lang_data[lang]["status_unknown"]}'
+          if Config.get_config("mc_check", "JSON_JAVA"):
+            result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\nSRV: {ms.srv_record}\n'
+          else:
+            result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\nSRV: {ms.srv_record}\n'
+          # Bedrock specific attribute:
+          #if ms.gamemode:
+          if 'BEDROCK' in str(ms.slp_protocol):
+            if Config.get_config("mc_check", "JSON_BDS"):
+              result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
             else:
-              result = lang_data[lang]["offline"]
-    except UnboundLocalError:
-      result = 'Dnspython is not installed!\nUse [pip install dnspython] to install'
+              result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
+          # Send favicon
+          if ms.favicon_b64 != None and ms.favicon_b64 != "":
+            try:
+              base0 = str(ms.favicon_b64)
+              if base0 != None and base0 != '':
+                base = base0[22:]
+                img = base64.b64decode(base)
+            except:
+              pass
+            else:
+                result = Message ([
+                MessageSegment.text(f'{result}favicon:'),
+                MessageSegment.image(img)
+                ])
+        else:
+          result = lang_data[lang]["offline"]
+    except ConnectionAbortedError:
+      result = f"Unable to connect to {srv[0]}"
     except UnicodeDecodeError:
       result = f'The information decoding failed for the following reasons:\n{lang_data[lang]["offline"]}'
     except BaseException as e:
