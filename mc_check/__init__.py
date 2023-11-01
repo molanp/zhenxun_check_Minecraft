@@ -34,7 +34,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port / mcheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服/mcheck","设置语言/set_lang","当前语言/lang_now","语言列表/lang_list"]
-__plugin_version__ = 1.4
+__plugin_version__ = 1.5
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
@@ -71,7 +71,7 @@ def resolve_srv(hostname):
         pass
     
     # 如果没有找到 SRV 记录，则返回原始的地址和默认端口
-    return [hostname, port]
+    return [ip,port]
 
 path = os.path.dirname(__file__)
 lang = Config.get_config("mc_check", "LANGUAGE")
@@ -102,6 +102,7 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
 async def get_info(host_name: str):
     try:
         host = host_name.strip()
+        ip = host.split(':')[0]
         srv = resolve_srv(host)
         ms = MineStat(srv[0], srv[1], timeout=1)
         if ms.online:
@@ -139,14 +140,14 @@ async def get_info(host_name: str):
                 MessageSegment.image(img)
                 ])
         else:
-          result = lang_data[lang]["offline"]
+          result = f'{lang_data[lang]["offline"]}'
     except ConnectionAbortedError:
       result = f"Unable to connect to {srv[0]}"
     except UnicodeDecodeError:
       result = f'The information decoding failed for the following reasons:\n{lang_data[lang]["offline"]}'
-    except BaseException as e:
-      result = f'ERROR:\n{e}'
-      logger.error(f'ERROR\n{e}')
+    #except BaseException as e:
+    #  result = f'ERROR:\n{e}'
+    #  logger.error(f'ERROR\n{e}')
     await check.send(Message(result), at_sender=True)
 @lang_change.handle()
 async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
