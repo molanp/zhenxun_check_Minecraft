@@ -10,7 +10,7 @@ from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.matcher import Matcher
 from configs.config import Config
 from .data_source import *
-import base64, os, ujson, dns.resolver
+import base64, os, ujson, dns.resolver, traceback
 
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 
@@ -145,9 +145,13 @@ async def get_info(host_name: str):
       result = f"Unable to connect to {srv[0]}"
     except UnicodeDecodeError:
       result = f'The information decoding failed for the following reasons:\n{lang_data[lang]["offline"]}'
-    #except BaseException as e:
-    #  result = f'ERROR:\n{e}'
-    #  logger.error(f'ERROR\n{e}')
+    except BaseException as e:
+      error_type = type(e).__name__  # 获取错误类型名称
+      error_message = str(e)  # 获取错误信息
+      error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]  # 获取函数 b() 的堆栈跟踪信息
+
+      result = f'ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
+      logger.error(result)
     await check.send(Message(result), at_sender=True)
 @lang_change.handle()
 async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
