@@ -10,7 +10,7 @@ from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.matcher import Matcher
 from configs.config import Config
 from .data_source import *
-import base64, os, ujson, dns.resolver, traceback
+import base64, os, ujson, dns.resolver, traceback, sys
 
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 
