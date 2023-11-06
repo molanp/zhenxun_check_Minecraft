@@ -65,7 +65,9 @@ def resolve_srv(hostname):
         # 获取真正的地址和端口
         for rdata in result:
             address = str(rdata.target).strip('.')
-            port = rdata.port
+            if(port == 0) {
+              port = rdata.port
+            }
             return [address, port]
     except dns.resolver.NXDOMAIN:
         pass
