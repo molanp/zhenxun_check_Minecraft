@@ -1,9 +1,6 @@
 from nonebot import on_command
 from services.log import logger
-from utils.message_builder import image
 from nonebot.adapters.onebot.v11 import (
-  Bot,
-  Event,
   MessageSegment,
   Message)
 from nonebot.params import Arg, CommandArg, ArgPlainText
