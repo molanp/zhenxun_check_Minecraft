@@ -96,7 +96,8 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
   if "." not in host_name:
     await check.finish(host.template(lang_data[lang]["where_ip"]),at_sender=True)
   if len(host_name.strip().split(':')) == 2:
-    if len(host_name.strip().split(':')[1]) > 5:
+    port = host_name.strip().split(':')[1]
+    if not port.isdigit() or not (0 <= int(port) <= 65535):
        await check.finish(lang_data[lang]["where_port"],at_sender=True)
   await get_info(host_name)
 
@@ -142,16 +143,12 @@ async def get_info(host_name: str):
                 ])
         else:
           result = f'{lang_data[lang]["offline"]}'
-    except ConnectionAbortedError:
-      result = f"Unable to connect to {srv[0]}"
-    except UnicodeDecodeError:
-      result = f'The information decoding failed for the following reasons:\n{lang_data[lang]["offline"]}'
     except BaseException as e:
       error_type = type(e).__name__  # 获取错误类型名称
       error_message = str(e)  # 获取错误信息
-      error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]  # 获取函数 b() 的堆栈跟踪信息
+      #error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]  # 获取函数 b() 的堆栈跟踪信息
 
-      result = f'ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
+      result = f'ERROR:\nType: {error_type}\nMessage: {error_message}'#\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
       logger.error(result)
     await check.send(Message(result), at_sender=True)
 @lang_change.handle()
