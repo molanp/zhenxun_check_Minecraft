@@ -1,5 +1,7 @@
 from nonebot import on_command
 from services.log import logger
+from utils.message_builder import image
+from utils.image_utils import text2image
 from nonebot.adapters.onebot.v11 import (
   MessageSegment,
   Message)
@@ -31,7 +33,7 @@ usage：
 __plugin_des__ = "用法：查服 ip:port / mcheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服/mcheck","设置语言/set_lang","当前语言/lang_now","语言列表/lang_list"]
-__plugin_version__ = 1.5
+__plugin_version__ = 1.6
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
@@ -42,7 +44,8 @@ __plugin_settings__ = {
 __plugin_configs__ = {
     "JSON_BDS": {"value": False, "help": "基岩版查服是否显示json版motd|Bedrock Edition checks whether the JSON version of MODD is displayed", "default_value": False},
     "JSON_JAVA": {"value": False, "help": "JAVA版查服是否显示json版motd|Java Edition checks whether the JSON version of motd is displayed", "default_value": False},
-    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese , English etc.)", "default_value": "Chinese"}
+    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese , English etc.)", "default_value": "Chinese"},
+    "type":  {"value": 0, "help": "防封号选项，0为发送图片消息，1为文本消息", "default": 0}
 }
 
 def readInfo(file):
@@ -71,6 +74,7 @@ def resolve_srv(hostname):
     # 如果没有找到 SRV 记录，则返回原始的地址和默认端口
     return [ip,port]
 
+message_type = Config.get_config("mc_check", "type")
 path = os.path.dirname(__file__)
 lang = Config.get_config("mc_check", "LANGUAGE")
 if lang == None: 
@@ -134,6 +138,9 @@ async def get_info(host_name: str):
             except:
               pass
             else:
+              if message_type == 0: 
+                result = Message(image(b64=(await text2image(f'{result}favicon:', color="#f9f6f2", padding=10)).pic2bs4()))
+              else: 
                 result = Message ([
                 MessageSegment.text(f'{result}favicon:'),
                 MessageSegment.image(img)
@@ -143,9 +150,9 @@ async def get_info(host_name: str):
     except BaseException as e:
       error_type = type(e).__name__  # 获取错误类型名称
       error_message = str(e)  # 获取错误信息
-      #error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]  # 获取函数 b() 的堆栈跟踪信息
+      error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]  # 获取函数 b() 的堆栈跟踪信息
 
-      result = f'ERROR:\nType: {error_type}\nMessage: {error_message}'#\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
+      result = f'ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
       logger.error(result)
     await check.send(Message(result), at_sender=True)
 @lang_change.handle()
