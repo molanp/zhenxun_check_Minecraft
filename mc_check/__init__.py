@@ -83,7 +83,6 @@ def resolve_srv(hostname):
     # 如果没有找到 SRV 记录，则返回原始的地址和默认端口
     return [ip, port]
 
-finish = 0
 message_type = Config.get_config("mc_check", "type")
 path = os.path.dirname(__file__)
 lang = Config.get_config("mc_check", "LANGUAGE")
@@ -116,6 +115,7 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
 
 
 async def get_info(host_name: str):
+    finish = 0
     try:
         host = host_name.strip()
         ip = host.split(':')[0]
