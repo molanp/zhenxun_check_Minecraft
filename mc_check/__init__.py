@@ -105,12 +105,18 @@ async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
 
 @check.got("host", prompt="IP?")
 async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
-    if "." not in host_name and "]" not in host_name:
-        await check.finish(host.template(lang_data[lang]["where_ip"]), at_sender=True)
-    if len(host_name.strip().split(']:')) == 2 or len(host_name.strip().split(':')) == 2:
+    if len(host_name.strip().split(']:')) == 2:
+        address = host_name.strip().split(']:')[0].strip('[')
+        port = host_name.strip().split(']:')[1]
+    elif len(host_name.strip().split(':')) == 2:
+        address = host_name.strip().split(':')[0]
         port = host_name.strip().split(':')[-1]
-        if not port.isdigit() or not (0 <= int(port) <= 65535):
-            await check.finish(lang_data[lang]["where_port"], at_sender=True)
+    else:
+        await check.finish(lang_data[lang]["where_port"], at_sender=True)
+    
+    if not port.isdigit() or not (0 <= int(port) <= 65535):
+        await check.finish(lang_data[lang]["where_port"], at_sender=True)
+    
     await get_info(host_name)
 
 
