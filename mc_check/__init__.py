@@ -11,6 +11,7 @@ from configs.config import Config
 from .data_source import *
 import base64
 import os
+import re
 import ujson
 import dns.resolver
 import traceback
@@ -23,7 +24,7 @@ dns.resolver.default_resolver.nameservers = ['223.5.5.5', '1.1.1.1']
 __zx_plugin_name__ = "我的世界查服"
 __plugin_usage__ = """
 usage：
-    我的世界服务器状态查询
+    我的世界服务器状态查询，支持IPv6
     用法：
         查服 [ip]:[端口] / 查服 [ip]
         设置语言 Chinese
@@ -59,19 +60,22 @@ def readInfo(file):
     with open(os.path.join(path, file), "r", encoding="utf-8") as f:
         return ujson.loads((f.read()).strip())
 
+def is_invalid_address(address):
+    domain_pattern = r"^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$"
+    ipv4_pattern = r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
+    ipv6_pattern = r"^[0-a-fA-F]{,4}(:[0-9a-fA-F]{1,4}){7}$"
 
-def resolve_srv(hostname):
-    ip = hostname.split(':')[0]
+    match_domain = re.match(domain_pattern, address)
+    match_ipv4 = re.match(ipv4_pattern, address)
+    match_ipv6 = re.match(ipv6_pattern, address)
+
+    return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
+
+def resolve_srv(ip, port=0):
     try:
-        port = int(hostname.split(':')[1])
-    except:
-        port = 0
-    try:
-        # 解析 SRV 记录
         result = dns.resolver.query(
             '_minecraft._tcp.' + ip, 'SRV', raise_on_no_answer=False)
 
-        # 获取真正的地址和端口
         for rdata in result:
             address = str(rdata.target).strip('.')
             if (port == 0):
@@ -80,8 +84,8 @@ def resolve_srv(hostname):
     except dns.resolver.NXDOMAIN:
         pass
 
-    # 如果没有找到 SRV 记录，则返回原始的地址和默认端口
     return [ip, port]
+
 
 message_type = Config.get_config("mc_check", "type")
 path = os.path.dirname(__file__)
@@ -105,28 +109,36 @@ async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
 
 @check.got("host", prompt="IP?")
 async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
-    if len(host_name.strip().split(']:')) == 2:
-        address = host_name.strip().split(']:')[0].strip('[')
-        port = host_name.strip().split(']:')[1]
-    elif len(host_name.strip().split(':')) == 2:
-        address = host_name.strip().split(':')[0]
-        port = host_name.strip().split(':')[-1]
+    address = None
+    port = 0
+    if '.' in host_name:
+        parts = host_name.strip().split(':')
+        address = parts[0]
+        if len(parts) > 1:
+            port = parts[1]
     else:
+        pattern = r'\[(.+)\]:(\d+)'
+        match = re.match(pattern, host_name)
+        if match:
+            address = match.group(1)
+            port = match.group(2)
+    
+    address = address.strip("[]")
+
+    if not str(port).isdigit() or not (0 <= int(port) <= 65535):
         await check.finish(lang_data[lang]["where_port"], at_sender=True)
     
-    if not port.isdigit() or not (0 <= int(port) <= 65535):
-        await check.finish(lang_data[lang]["where_port"], at_sender=True)
-    
-    await get_info(host_name)
+    if is_invalid_address(address):
+        await check.finish(lang_data[lang]["where_ip"], at_sender=True)
+
+    await get_info(address, port)
 
 
-async def get_info(host_name: str):
+async def get_info(ip, port):
     finish = 0
     try:
-        host = host_name.strip()
-        ip = host.split(':')[0]
-        srv = resolve_srv(host)
-        ms = MineStat(srv[0], srv[1], timeout=1)
+        srv = resolve_srv(ip, port)
+        ms = MineStat(srv[0], int(srv[1]), timeout=1)
         if ms.online:
             if ms.connection_status == ConnStatus.SUCCESS:
                 status = f'{ms.connection_status}|{lang_data[lang]["status_success"]}'
@@ -141,7 +153,6 @@ async def get_info(host_name: str):
             else:
                 result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}\n'
             # Bedrock specific attribute:
-            # if ms.gamemode:
             if 'BEDROCK' in str(ms.slp_protocol):
                 if Config.get_config("mc_check", "JSON_BDS"):
                     result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
@@ -169,7 +180,7 @@ async def get_info(host_name: str):
                                 )
                             ), at_sender=True
                         )
-                        #await check.send(MessageSegment.image(img))#, at_sender=True)
+                        await check.send(MessageSegment.image(img))#, at_sender=True)
                         finish = 1
                     else:
                         result = Message([
@@ -179,26 +190,26 @@ async def get_info(host_name: str):
         else:
             result = f'{lang_data[lang]["offline"]}'
     except BaseException as e:
-        error_type = type(e).__name__  # 获取错误类型名称
-        error_message = str(e)  # 获取错误信息
-        error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]  # 获取函数 b() 的堆栈跟踪信息
+        error_type = type(e).__name__
+        error_message = str(e)
+        error_traceback = traceback.extract_tb(
+            sys.exc_info()[2])[-2]
 
-       
         result = f'ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
         logger.error(result)
     if finish != 1:
-      if message_type == 0:
-        await check.send(
-            Message(
-                image(
-                    b64=(
-                        await text2image(result, color="#f9f6f2", padding=10)
-                    ).pic2bs4()
-                )
-            ), at_sender=True
-          )
-      else:
-        await check.send(Message(result), at_sender=True)
+        if message_type == 0:
+            await check.send(
+                Message(
+                    image(
+                        b64=(
+                            await text2image(result, color="#f9f6f2", padding=10)
+                        ).pic2bs4()
+                    )
+                ), at_sender=True
+            )
+        else:
+            await check.send(Message(result), at_sender=True)
 
 
 @lang_change.handle()
