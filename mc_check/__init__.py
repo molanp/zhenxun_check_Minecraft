@@ -109,7 +109,7 @@ async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
 
 @check.got("host", prompt="IP?")
 async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
-    address = ""
+    address = ''
     port = 0
     if '.' in host_name:
         parts = host_name.strip().split(':')
@@ -117,14 +117,12 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
         if len(parts) > 1:
             port = parts[1]
     else:
-        pattern = r'\[(.+)\]:(\d+)'
+        pattern = r'\[(.+)\](?::(\d+))?$'
         match = re.match(pattern, host_name)
         if match:
             address = match.group(1)
-            port = match.group(2)
+            port = match.group(2) if match.group(2) else 0
     
-    address = address.strip("[]")
-
     if not str(port).isdigit() or not (0 <= int(port) <= 65535):
         await check.finish(lang_data[lang]["where_port"], at_sender=True)
     
