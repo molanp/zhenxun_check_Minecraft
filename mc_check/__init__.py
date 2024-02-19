@@ -8,9 +8,12 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.matcher import Matcher
 from configs.config import Config
+from PIL import Image
 from .data_source import *
+import nonebot
 import base64
 import os
+import io
 import re
 import ujson
 import dns.resolver
@@ -40,7 +43,7 @@ __plugin_des__ = "用法：查服 ip:port / mcheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服/mcheck", "设置语言/set_lang",
                   "当前语言/lang_now", "语言列表/lang_list"]
-__plugin_version__ = 1.6
+__plugin_version__ = 1.7
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
@@ -60,6 +63,7 @@ def readInfo(file):
     with open(os.path.join(path, file), "r", encoding="utf-8") as f:
         return ujson.loads((f.read()).strip())
 
+
 def is_invalid_address(address):
     domain_pattern = r"^(?:(?!_)(?!-)(?!.*--)[a-zA-Z0-9\u4e00-\u9fa5\-_]{1,63}\.?)+[a-zA-Z\u4e00-\u9fa5]{2,}$"
     ipv4_pattern = r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
@@ -70,6 +74,7 @@ def is_invalid_address(address):
     match_ipv6 = re.match(ipv6_pattern, address)
 
     return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
+
 
 def resolve_srv(ip, port=0):
     try:
@@ -122,10 +127,10 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
         if match:
             address = match.group(1)
             port = match.group(2) if match.group(2) else 0
-    
+
     if not str(port).isdigit() or not (0 <= int(port) <= 65535):
         await check.finish(lang_data[lang]["where_port"], at_sender=True)
-    
+
     if is_invalid_address(address):
         await check.finish(lang_data[lang]["where_ip"], at_sender=True)
 
@@ -133,7 +138,6 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
 
 
 async def get_info(ip, port):
-    finish = 0
     try:
         srv = resolve_srv(ip, port)
         ms = MineStat(srv[0], int(srv[1]), timeout=1)
@@ -156,37 +160,63 @@ async def get_info(ip, port):
                     result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
                 else:
                     result = f'\n{lang_data[lang]["version"]}{ms.version}\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}\n{lang_data[lang]["gamemode"]}{ms.gamemode}\n{lang_data[lang]["address"]}{ip}\n{lang_data[lang]["port"]}{ms.port}\n{lang_data[lang]["delay"]}{ms.latency}ms\n{lang_data[lang]["motd"]}{ms.stripped_motd}\n{lang_data[lang]["players"]}{ms.current_players}/{ms.max_players}\n{lang_data[lang]["status"]}{status}'
+                if message_type == 0:
+                    await check.finish(Message(
+                            image(
+                                b64=(
+                                    await text2image(result, color="#f9f6f2", padding=10)
+                                ).pic2bs4()
+                            )
+                        ),at_sender=True)
+                else:
+                   await check.finish(Message(result),at_sender=True)
             # Send favicon
-            if ms.favicon_b64 != None and ms.favicon_b64 != "":
+            else:
                 try:
                     base0 = str(ms.favicon_b64)
                     if base0 != None and base0 != '':
-                        base = base0[22:]
-                        img = base64.b64decode(base)
+                        favic = base64.b64decode(base)
                     else:
-                        ValueError('不存在favicon')
+                        favic = None
                 except:
-                    pass
-                else:
-                    if message_type == 0:
-                        await check.send(
-                            Message(
+                    favic = None
+                if message_type == 0:
+                    if favic != None:
+                        image1 = Image.open(io.BytesIO(
+                            base64.b64decode(
+                            (await text2image(f'{result}favicon:', color="#f9f6f2", padding=10))
+                            .pic2bs4().replace("base64://", "")
+                            )))
+                        image2 = Image.open(io.BytesIO(favic))
+                        new_height = image1.height + image2.height
+                        new_canvas = Image.new(
+                            'RGB', (image1.width, new_height), (255, 255, 255))
+                        new_canvas.paste(image1, (0, 0))
+                        new_canvas.paste(image2, (0, image1.height))
+                        result_image_data = io.BytesIO()
+                        new_canvas.save(result_image_data, format='JPEG')
+                        result_image_data = result_image_data.getvalue()
+                        await check.finish(Message(image(result_image_data)),at_sender=True)
+                    else:
+                        await check.finish(Message(
                                 image(
                                     b64=(
-                                        await text2image(f'{result}favicon:', color="#f9f6f2", padding=10)
+                                        await text2image(result, color="#f9f6f2", padding=10)
                                     ).pic2bs4()
                                 )
-                            ), at_sender=True
-                        )
-                        await check.send(MessageSegment.image(img))#, at_sender=True)
-                        finish = 1
+                            ),at_sender=True)
+                else:
+                    if favic != None:
+                        await check.finish(Message([
+                                MessageSegment.text(f'{result}favicon:'),
+                                MessageSegment.image(favic)
+                            ]),at_sender=True)
                     else:
-                        result = Message([
-                            MessageSegment.text(f'{result}favicon:'),
-                            MessageSegment.image(img)
-                        ])
+                        await check.finish(Message(result),at_sender=True)
         else:
-            result = f'{lang_data[lang]["offline"]}'
+            await check.finish(Message(f'{lang_data[lang]["offline"]}'),at_sender=True)
+    except nonebot.exception.FinishedException as e:
+        pass
     except BaseException as e:
         error_type = type(e).__name__
         error_message = str(e)
@@ -195,19 +225,7 @@ async def get_info(ip, port):
 
         result = f'ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
         logger.error(result)
-    if finish != 1:
-        if message_type == 0:
-            await check.send(
-                Message(
-                    image(
-                        b64=(
-                            await text2image(result, color="#f9f6f2", padding=10)
-                        ).pic2bs4()
-                    )
-                ), at_sender=True
-            )
-        else:
-            await check.send(Message(result), at_sender=True)
+        await check.finish(Message(result),at_sender=True)
 
 
 @lang_change.handle()
@@ -219,8 +237,7 @@ async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
 
 @lang_change.got("lang_", prompt="Language?")
 async def handle_host(lang_: Message = Arg(), language_name: str = ArgPlainText("lang_")):
-    result = await change(language_name)
-    await lang_change.finish(Message(result), at_sender=True)
+    await lang_change.finish(Message(await change(language_name)), at_sender=True)
 
 
 async def change(language: str):
