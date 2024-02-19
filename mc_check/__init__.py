@@ -43,7 +43,7 @@ __plugin_des__ = "用法：查服 ip:port / mcheck ip:port"
 __plugin_type__ = ("一些工具",)
 __plugin_cmd__ = ["查服/mcheck", "设置语言/set_lang",
                   "当前语言/lang_now", "语言列表/lang_list"]
-__plugin_version__ = 1.7
+__plugin_version__ = 1.6
 __plugin_author__ = "molanp"
 __plugin_settings__ = {
     "level": 5,
@@ -172,22 +172,16 @@ async def get_info(ip, port):
                    await check.finish(Message(result),at_sender=True)
             # Send favicon
             else:
-                try:
-                    base0 = str(ms.favicon_b64)
-                    if base0 != None and base0 != '':
-                        favic = base64.b64decode(base)
-                    else:
-                        favic = None
-                except:
-                    favic = None
                 if message_type == 0:
-                    if favic != None:
+                    if ms.favicon is not None and ms.favicon != "":
                         image1 = Image.open(io.BytesIO(
                             base64.b64decode(
                             (await text2image(f'{result}favicon:', color="#f9f6f2", padding=10))
                             .pic2bs4().replace("base64://", "")
                             )))
-                        image2 = Image.open(io.BytesIO(favic))
+                        image2 = Image.open(io.BytesIO(
+                            base64.b64decode(ms.favicon_b64.split(",")[1])
+                        ))
                         new_height = image1.height + image2.height
                         new_canvas = Image.new(
                             'RGB', (image1.width, new_height), (255, 255, 255))
@@ -206,10 +200,10 @@ async def get_info(ip, port):
                                 )
                             ),at_sender=True)
                 else:
-                    if favic != None:
+                    if ms.favicon is not None and ms.favicon != "":
                         await check.finish(Message([
                                 MessageSegment.text(f'{result}favicon:'),
-                                MessageSegment.image(favic)
+                                MessageSegment.image(base64.b64decode(ms.favicon_b64.split(",")[1]))
                             ]),at_sender=True)
                     else:
                         await check.finish(Message(result),at_sender=True)
