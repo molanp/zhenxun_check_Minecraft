@@ -3,17 +3,17 @@ from services.log import logger
 from utils.message_builder import image
 from utils.image_utils import text2image
 from nonebot.adapters.onebot.v11 import (
+    Bot,
+    GroupMessageEvent,
     MessageSegment,
     Message)
 from nonebot.params import Arg, CommandArg, ArgPlainText
 from nonebot.matcher import Matcher
 from configs.config import Config
-from PIL import Image
 from .data_source import *
 import nonebot
 import base64
 import os
-import io
 import re
 import ujson
 import dns.resolver
@@ -106,14 +106,16 @@ lang_list = on_command("语言列表", aliases={'lang_list'}, priority=5, block=
 
 
 @check.handle()
-async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
+async def handle_first_receive(bot_: Bot, event_: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
     plain_text = args.extract_plain_text()
     if plain_text:
+        global bot, event
+        bot, event = bot_, event_
         matcher.set_arg("host", args)
 
 
 @check.got("host", prompt="IP?")
-async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host")):
+async def handle_host(host_name: str = ArgPlainText("host")):
     address = ''
     port = 0
     if '.' in host_name:
@@ -138,6 +140,7 @@ async def handle_host(host: Message = Arg(), host_name: str = ArgPlainText("host
 
 
 async def get_info(ip, port):
+    global bot, event
     try:
         srv = resolve_srv(ip, port)
         ms = MineStat(srv[0], int(srv[1]), timeout=1)
@@ -173,24 +176,34 @@ async def get_info(ip, port):
             # Send favicon
             else:
                 if message_type == 0:
+                    msg_list = []
                     if ms.favicon is not None and ms.favicon != "":
-                        image1 = Image.open(io.BytesIO(
-                            base64.b64decode(
-                            (await text2image(f'{result}favicon:', color="#f9f6f2", padding=10))
-                            .pic2bs4().replace("base64://", "")
-                            )))
-                        image2 = Image.open(io.BytesIO(
-                            base64.b64decode(ms.favicon_b64.split(",")[1])
-                        ))
-                        new_height = image1.height + image2.height
-                        new_canvas = Image.new(
-                            'RGB', (image1.width, new_height), (255, 255, 255))
-                        new_canvas.paste(image1, (0, 0))
-                        new_canvas.paste(image2, (0, image1.height))
-                        result_image_data = io.BytesIO()
-                        new_canvas.save(result_image_data, format='JPEG')
-                        result_image_data = result_image_data.getvalue()
-                        await check.finish(Message(image(result_image_data)),at_sender=True)
+                        msg_list.append({
+                            "type": "node",
+                            "data": {
+                                "name": "查服机器人",
+                                "uin": "2854196310",
+                                "content": "[CQ:image,file={}]".format(
+                            (await text2image(result, color="#f9f6f2", padding=10,)).pic2bs4()
+                            )
+                            },
+                        })
+
+                        msg_list.append({
+                            "type": "node",
+                            "data": {
+                                "name": "查服机器人",
+                                "uin": "2854196310",
+                                "content": "[CQ:image,file={}]".format("base64://"+
+                           ms.favicon_b64.split(",")[1]
+                            )
+                            },
+                        })
+                        if isinstance(event, GroupMessageEvent):
+                            await bot.send_group_forward_msg(group_id=event.group_id, messages=msg_list)
+                        else:
+                            for msg in msg_list:
+                                await bot.send_private_msg(user_id=event.user_id, message=msg)
                     else:
                         await check.finish(Message(
                                 image(
