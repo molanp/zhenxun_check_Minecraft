@@ -30,12 +30,12 @@ usage：
     我的世界服务器状态查询，支持IPv6
     用法：
         查服 [ip]:[端口] / 查服 [ip]
-        设置语言 Chinese
+        设置语言 zh-cn
         当前语言
         语言列表
     eg:
         mcheck ip:port / mcheck ip
-        set_lang English
+        set_lang en
         lang_now
         lang_list
 """.strip()
@@ -54,7 +54,7 @@ __plugin_settings__ = {
 __plugin_configs__ = {
     "JSON_BDS": {"value": False, "help": "基岩版查服是否显示json版motd|Bedrock Edition checks whether the JSON version of MODD is displayed", "default_value": False},
     "JSON_JAVA": {"value": False, "help": "JAVA版查服是否显示json版motd|Java Edition checks whether the JSON version of motd is displayed", "default_value": False},
-    "LANGUAGE": {"value": "Chinese", "help": "Change the language(Chinese , English etc.)", "default_value": "Chinese"},
+    "LANGUAGE": {"value": "zh-cn", "help": "Change the language(zh-cn, zh-tw, en etc.)", "default_value": "zh-cn"},
     "type":  {"value": 0, "help": "防封号选项，0为发送图片消息，1为文本消息", "default": 0}
 }
 
