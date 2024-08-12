@@ -55,6 +55,10 @@
 <details>
 <summary>更新日志</summary>
 
+## 2024/08/12
+
+适配dev版本真寻
+
 ## 2023/11/01
 ### v1.5
 修复SRV解析
@@ -135,7 +139,7 @@ socket返回值进行容错处理
 
 # 依赖
 ```powershell
-pip install "dnspython>=2.2.1,<2.5.0"
+pip install dnspython
 ```
 
 # 感谢
