@@ -1,6 +1,5 @@
 from nonebot import on_command
 from services.log import logger
-from utils.message_builder import image
 from utils.image_utils import text2image
 from nonebot.adapters.onebot.v11 import (
     Bot,
