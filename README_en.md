@@ -28,6 +28,7 @@ English|[简体中文](README.md)
 
 ## Future functions
 
+- [ ] Colorful Motd
 - [ ] Get server protocol number
 - [ ] Get server official website (if any)
 - [ ] And more...
