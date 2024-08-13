@@ -54,6 +54,16 @@ This diagram uses version v0.9↑
 <details>
 <summary>Update log</summary>
 
+## 2024/08/14
+
+Fully adapted to dev Zhenxun Bot, migrate the plugin configuration to `PluginMetadata`
+
+Format the code to increase readability
+
+## 2024/08/12
+
+Adapt to the dev version of Zhenxun Bot.
+
 ## 2023/11/01
 ### v1.5
 fix SRV resolver
