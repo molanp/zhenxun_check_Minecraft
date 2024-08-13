@@ -56,6 +56,12 @@
 <details>
 <summary>更新日志</summary>
 
+## 2024/08/14
+
+完全适配dev真寻，迁移插件配置至`PluginMetadata`
+
+格式化代码，增加可读性
+
 ## 2024/08/12
 
 适配dev版本真寻
