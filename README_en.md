@@ -54,6 +54,7 @@ This diagram uses version v1.8↑
 <summary>Update log</summary>
 
 ## 2024/08/14
+### v1.8
 
 Fully adapted to dev Zhenxun Bot, migrate the plugin configuration to `PluginMetadata`
 
