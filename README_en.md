@@ -8,6 +8,7 @@ English|[简体中文](README.md)
 ***
 ## Implemented functions
 
+- [x] Render Motd styles
 - [x] Query server nickname
 - [x] Query the maximum number of servers, the current number of people
 - [x] Query server motd
@@ -28,17 +29,15 @@ English|[简体中文](README.md)
 
 ## Future functions
 
-- [ ] Colorful Motd
 - [ ] Get server protocol number
 - [ ] Get server official website (if any)
 - [ ] And more...
 
 ## Test screenshot
 
-![picture](https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png)
+![1.8](https://github.com/user-attachments/assets/01e58773-636e-4e36-9d33-02cbfec3fb4e)
 
-This diagram uses version v0.9↑
-<!--address：https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png-->
+This diagram uses version v1.8↑
 
 ## How to use
 - Install
