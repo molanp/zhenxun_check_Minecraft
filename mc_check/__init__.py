@@ -7,23 +7,18 @@ from zhenxun.configs.config import Config  # type: ignore
 from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
 from nonebot.exception import FinishedException  # type: ignore
 from nonebot.adapters.onebot.v11 import Message, MessageSegment, GroupMessageEvent, Bot  # type: ignore
-from zhenxun.utils.image_utils import text2image  # type: ignore
 from .data_source import MineStat
 from .untils import (
     resolve_srv,
     is_invalid_address,
+    ColoredTextImage,
+    parse_motd,
+    readInfo
 )
 import re
 import traceback
 import sys
-import os
-import ujson
-import dns.resolver
 import base64
-
-dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
-
-dns.resolver.default_resolver.nameservers = ['223.5.5.5', '1.1.1.1']
 
 __plugin_meta__ = PluginMetadata(
     name="Minecraft查服",
@@ -63,11 +58,6 @@ __plugin_meta__ = PluginMetadata(
         ],
     ).dict(),
 )
-
-
-def readInfo(file):
-    with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
-        return ujson.loads((f.read()).strip())
 
 
 message_type = Config.get_config("mc_check", "type")
@@ -111,8 +101,12 @@ async def get_info(ip, port):
         srv = resolve_srv(ip, port)
         ms = MineStat(srv[0], int(srv[1]), timeout=1)
         if ms.online:
-            result = build_result(ms)
-            await send_image_message(result, ms.favicon, ms.favicon_b64)
+            if message_type == 0:
+                result = build_result(ms)
+                await send_image_message(result, ms.favicon, ms.favicon_b64)
+            else:
+                result = build_result(ms, text=True)
+                await send_text_message(result, ms.favicon, ms.favicon_b64)
         else:
             await check.finish(Message(f'{lang_data[lang]["offline"]}'), at_sender=True)
     except FinishedException:
@@ -135,7 +129,7 @@ def parse_host(host_name):
     return address, port
 
 
-def build_result(ms):
+def build_result(ms, text=False):
     status = f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}'
     base_result = (
         f'\n{lang_data[lang]["version"]}{ms.version}'
@@ -147,8 +141,10 @@ def build_result(ms):
 
     if 'BEDROCK' in str(ms.slp_protocol):
         base_result += f'\n{lang_data[lang]["gamemode"]}{ms.gamemode}'
-
-    motd_part = f'\n{lang_data[lang]["motd"]}{ms.stripped_motd}'
+    if text:
+        motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.stripped_motd)}'
+    else:
+        motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.motd)}[#RESET]'
 
     result = (
         base_result +
@@ -175,16 +171,15 @@ async def send_image_message(result, favicon, favicon_b64):
     if favicon is not None and favicon != "":
         await check.finish(Message([
             MessageSegment.image(
-                (await text2image(result, color="#f9f6f2", padding=10)).pic2bytes()
+                (ColoredTextImage(result)).pic2bytes()
             ),
             MessageSegment.text('Favicon:'),
             MessageSegment.image(base64.b64decode(favicon_b64.split(",")[1]))
         ]), at_sender=True)
     else:
         await check.finish(MessageSegment.image(
-            (await text2image(result, color="#f9f6f2", padding=10)).pic2bytes()
+            (ColoredTextImage(result)).pic2bytes()
         ), at_sender=True)
-
 
 
 async def handle_exception(e):

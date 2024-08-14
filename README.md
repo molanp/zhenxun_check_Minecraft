@@ -10,6 +10,7 @@
 ***
 ## 已实现的功能
 
+- [x] 渲染Motd样式
 - [x] 查询服务器昵称
 - [x] 查询服务器最大人数,当前人数
 - [x] 查询服务器motd
@@ -37,11 +38,9 @@
 
 ## 测试截图
 
-![测试截图](https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png)
+![1.8](https://github.com/user-attachments/assets/abcda34f-0783-4c1e-b5c1-de9228047a69)
 
-此图使用v0.9版本↑
-<!--图片地址：https://user-images.githubusercontent.com/104612722/210684756-883da1c2-44a5-4119-8c50-647a527aa68f.png-->
-
+此图使用v1.8版本↑
 ## 使用方法
 - 安装
   - 将`mc_check`文件夹放入`extensive_plugin`文件夹或自定义文件夹内
