@@ -55,6 +55,7 @@
 <summary>更新日志</summary>
 
 ## 2024/08/14
+### v1.8
 
 完全适配dev真寻，迁移插件配置至`PluginMetadata`
 
