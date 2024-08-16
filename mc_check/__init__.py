@@ -171,14 +171,14 @@ async def send_image_message(result, favicon, favicon_b64):
     if favicon is not None and favicon != "":
         await check.finish(Message([
             MessageSegment.image(
-                (ColoredTextImage(result)).pic2bytes()
+                (await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
             ),
             MessageSegment.text('Favicon:'),
             MessageSegment.image(base64.b64decode(favicon_b64.split(",")[1]))
         ]), at_sender=True)
     else:
         await check.finish(MessageSegment.image(
-            (ColoredTextImage(result)).pic2bytes()
+            (await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
         ), at_sender=True)
 
 
