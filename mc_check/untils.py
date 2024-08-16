@@ -1,5 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-import json
 import io
 import re
 import ujson as json
@@ -9,12 +8,6 @@ import dns.resolver
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 
 dns.resolver.default_resolver.nameservers = ['223.5.5.5', '1.1.1.1']
-
-
-def readInfo(file):
-    with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
-        return json.loads((f.read()).strip())
-
 
 def is_invalid_address(address):
     domain_pattern = r"^(?:(?!_)(?!-)(?!.*--)[a-zA-Z0-9\u4e00-\u9fa5\-_]{1,63}\.?)+[a-zA-Z\u4e00-\u9fa5]{2,}$"
@@ -26,6 +19,10 @@ def is_invalid_address(address):
     match_ipv6 = re.match(ipv6_pattern, address)
 
     return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
+
+def readInfo(file):
+    with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
+        return json.loads((f.read()).strip())
 
 
 def resolve_srv(ip, port=0):
@@ -152,6 +149,7 @@ class ColoredTextImage:
         """
         初始化一个用于绘制彩色文本图像的对象。
         """
+        self.text = text
         self.padding = padding
         self.background_color = background_color
         self.font_path = os.path.join(
@@ -163,10 +161,10 @@ class ColoredTextImage:
         self.italic_font_path = os.path.join(
             os.path.dirname(__file__), "font", "Italic.ttf")
         self.font_size = 40
-        width, height = self._calculate_dimensions(text)
-        self.image = Image.new('RGB', (width, height), self.background_color)
-        self.draw = ImageDraw.Draw(self.image)
-        self.draw_text_with_style(text)
+        #width, height = self._calculate_dimensions(text)
+        #self.image = Image.new('RGB', (width, height), self.background_color)
+        #self.draw = ImageDraw.Draw(self.image)
+        #self.draw_text_with_style(text)
 
     def _calculate_dimensions(self, text: str) -> tuple[int, int]:
         """
@@ -220,12 +218,17 @@ class ColoredTextImage:
             return ImageFont.truetype(self.italic_font_path, self.font_size)
         return ImageFont.truetype(self.font_path, self.font_size)
 
-    def draw_text_with_style(self, text: str) -> None:
+    async def draw_text_with_style(self) -> None:
         """
         使用指定样式绘制文本。
 
         :param text: 需要绘制的文本字符串。
         """
+        text = self.text
+        width, height = self._calculate_dimensions(text)
+        self.image = Image.new('RGB', (width, height), self.background_color)
+        self.draw = ImageDraw.Draw(self.image)
+        #self.draw_text_with_style(text)
 
         bold = italic = underline = strikethrough = False
         current_color = (0, 0, 0)
@@ -301,6 +304,7 @@ class ColoredTextImage:
                 i += 1
             y_offset += line_height
             x_offset = 50
+        return self
 
     def save(self, filename: str) -> None:
         """
