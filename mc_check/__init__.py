@@ -7,13 +7,13 @@ from zhenxun.configs.config import Config  # type: ignore
 from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
 from nonebot.exception import FinishedException  # type: ignore
 from nonebot.adapters.onebot.v11 import Message, MessageSegment, GroupMessageEvent, Bot  # type: ignore
-from .data_source import MineStat
 from .untils import (
-    resolve_srv,
     is_invalid_address,
     ColoredTextImage,
     parse_motd,
-    readInfo
+    readInfo,
+    get_mc,
+    resolve_srv
 )
 import re
 import traceback
@@ -62,8 +62,6 @@ __plugin_meta__ = PluginMetadata(
 
 message_type = Config.get_config("mc_check", "type")
 lang = Config.get_config("mc_check", "LANGUAGE")
-if lang == None:
-    lang = "zh-cn"
 lang_data = readInfo("language.json")
 
 check = on_command("查服", aliases={'mcheck'}, priority=5, block=True)
@@ -98,8 +96,8 @@ async def get_info(ip, port):
     global bot, event, ms
 
     try:
-        srv = resolve_srv(ip, port)
-        ms = MineStat(srv[0], int(srv[1]), timeout=1)
+        srv = await resolve_srv(ip, port)
+        ms = await get_mc(srv[0], int(srv[1]), timeout = 1)
         if ms.online:
             if message_type == 0:
                 result = build_result(ms)

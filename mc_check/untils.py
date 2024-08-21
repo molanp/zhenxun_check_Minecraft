@@ -3,11 +3,25 @@ import io
 import re
 import ujson as json
 import os
+import asyncio
 import dns.resolver
+from .data_source import MineStat
 
-dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
 
-dns.resolver.default_resolver.nameservers = ['223.5.5.5', '1.1.1.1']
+def readInfo(file):
+    with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
+        return json.loads((f.read()).strip())
+
+
+def create_mine_stat(host, port, timeout):
+    ms = MineStat(host, port, timeout)
+    return ms
+
+
+async def get_mc(host, port, timeout=1):
+    ms = await asyncio.to_thread(create_mine_stat, host, port, timeout)
+    return ms
+
 
 def is_invalid_address(address):
     domain_pattern = r"^(?:(?!_)(?!-)(?!.*--)[a-zA-Z0-9\u4e00-\u9fa5\-_]{1,63}\.?)+[a-zA-Z\u4e00-\u9fa5]{2,}$"
@@ -20,24 +34,29 @@ def is_invalid_address(address):
 
     return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
 
-def readInfo(file):
-    with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
-        return json.loads((f.read()).strip())
+
+async def resolve_srv(ip: str, port: int = 0):
+    result = await asyncio.to_thread(resolve_srv_sync, ip, port)
+    return result
 
 
-def resolve_srv(ip, port=0):
+def resolve_srv_sync(ip: str, port: int = 0):
+    resolver = dns.resolver.Resolver()
+    resolver.nameservers = ['223.5.5.5', '1.1.1.1']
+
     try:
-        result = dns.resolver.query(
-            '_minecraft._tcp.' + ip, 'SRV', raise_on_no_answer=False)
+        response = resolver.resolve(f'_minecraft._tcp.{ip}', 'SRV')
 
-        for rdata in result:
-            address = str(rdata.target).strip('.')
-            if (port == 0):
+        if not response:
+            return [ip, port]
+
+        for rdata in response:
+            address = str(rdata.target).rstrip('.')
+            if port == 0:
                 port = rdata.port
             return [address, port]
-    except dns.resolver.NXDOMAIN:
+    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
         pass
-
     return [ip, port]
 
 
@@ -161,10 +180,6 @@ class ColoredTextImage:
         self.italic_font_path = os.path.join(
             os.path.dirname(__file__), "font", "Italic.ttf")
         self.font_size = 40
-        #width, height = self._calculate_dimensions(text)
-        #self.image = Image.new('RGB', (width, height), self.background_color)
-        #self.draw = ImageDraw.Draw(self.image)
-        #self.draw_text_with_style(text)
 
     def _calculate_dimensions(self, text: str) -> tuple[int, int]:
         """
@@ -228,7 +243,7 @@ class ColoredTextImage:
         width, height = self._calculate_dimensions(text)
         self.image = Image.new('RGB', (width, height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
-        #self.draw_text_with_style(text)
+        # self.draw_text_with_style(text)
 
         bold = italic = underline = strikethrough = False
         current_color = (0, 0, 0)
@@ -324,3 +339,4 @@ class ColoredTextImage:
         self.image.save(byte_io, format='PNG')
         byte_io.seek(0)
         return byte_io.getvalue()
+
