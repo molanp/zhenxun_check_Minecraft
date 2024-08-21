@@ -6,7 +6,7 @@ from nonebot.matcher import Matcher  # type: ignore
 from zhenxun.configs.config import Config  # type: ignore
 from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
 from nonebot.exception import FinishedException  # type: ignore
-from nonebot.adapters.onebot.v11 import Message, MessageSegment, GroupMessageEvent, Bot  # type: ignore
+from nonebot.adapters.onebot.v11 import Message, MessageSegment, Bot  # type: ignore
 from .untils import (
     is_invalid_address,
     ColoredTextImage,
@@ -71,11 +71,11 @@ lang_list = on_command("语言列表", aliases={'lang_list'}, priority=5, block=
 
 
 @check.handle()
-async def handle_first_receive(bot_: Bot, event_: GroupMessageEvent, matcher: Matcher, args: Message = CommandArg()):
+async def handle_first_receive(bot_: Bot, matcher: Matcher, args: Message = CommandArg()):
     plain_text = args.extract_plain_text()
     if plain_text:
-        global bot, event
-        bot, event = bot_, event_
+        global bot
+        bot = bot_
         matcher.set_arg("host", args)
 
 
@@ -93,7 +93,7 @@ async def handle_host(host_name: str = ArgPlainText("host")):
 
 
 async def get_info(ip, port):
-    global bot, event, ms
+    global bot, ms
 
     try:
         srv = await resolve_srv(ip, port)
