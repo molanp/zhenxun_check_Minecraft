@@ -58,6 +58,14 @@ This diagram uses version v1.8↑
 <details>
 <summary>Update log</summary>
 
+## 2024/08/21-22
+
+refactor(mc_check): optimize untils function and refactor network calls
+
+Remove useless dependencies
+
+Render colored characters in Version
+
 ## 2024/08/14
 ### v1.8
 

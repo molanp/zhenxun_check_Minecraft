@@ -6,7 +6,7 @@ from nonebot.matcher import Matcher  # type: ignore
 from zhenxun.configs.config import Config  # type: ignore
 from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
 from nonebot.exception import FinishedException  # type: ignore
-from nonebot.adapters.onebot.v11 import Message, MessageSegment, Bot  # type: ignore
+from nonebot.adapters.onebot.v11 import Message, MessageSegment  # type: ignore
 from .untils import (
     is_invalid_address,
     ColoredTextImage,
@@ -71,16 +71,14 @@ lang_list = on_command("语言列表", aliases={'lang_list'}, priority=5, block=
 
 
 @check.handle()
-async def handle_first_receive(bot_: Bot, matcher: Matcher, args: Message = CommandArg()):
+async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()): # type: ignore
     plain_text = args.extract_plain_text()
     if plain_text:
-        global bot
-        bot = bot_
         matcher.set_arg("host", args)
 
 
 @check.got("host", prompt="IP?")
-async def handle_host(host_name: str = ArgPlainText("host")):
+async def handle_host(host_name: str = ArgPlainText("host")):  # type: ignore
     address, port = parse_host(host_name)
 
     if not str(port).isdigit() or not (0 <= int(port) <= 65535):
@@ -93,11 +91,11 @@ async def handle_host(host_name: str = ArgPlainText("host")):
 
 
 async def get_info(ip, port):
-    global bot, ms
+    global ms
 
     try:
         srv = await resolve_srv(ip, port)
-        ms = await get_mc(srv[0], int(srv[1]), timeout = 1)
+        ms = await get_mc(srv[0], int(srv[1]), timeout=1)
         if ms.online:
             if message_type == 0:
                 result = build_result(ms)
@@ -121,15 +119,18 @@ def parse_host(host_name):
     else:
         pattern = r'\[(.+)\](?::(\d+))?$'
         match = re.match(pattern, host_name)
-        address = match.group(1)
-        port = match.group(2) if match.group(2) else 0
+        address = match.group(1)  # type: ignore
+        port = match.group(2) if match.group(2) else 0  # type: ignore
 
     return address, port
 
 
 def build_result(ms, text=False):
     status = f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}'
+
     base_result = (
+        f'\n{lang_data[lang]["version"]}'
+        f'{ms.version if text else parse_motd(ms.version)}'
         f'\n{lang_data[lang]["version"]}{ms.version}'
         f'\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}'
         f'\n{lang_data[lang]["address"]}{ms.address}'
@@ -140,7 +141,7 @@ def build_result(ms, text=False):
     if 'BEDROCK' in str(ms.slp_protocol):
         base_result += f'\n{lang_data[lang]["gamemode"]}{ms.gamemode}'
     if text:
-        motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.stripped_motd)}'
+        motd_part = f'\n{lang_data[lang]["motd"]}{ms.stripped_motd}'
     else:
         motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.motd)}[#RESET]'
 

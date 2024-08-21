@@ -59,6 +59,14 @@
 <details>
 <summary>更新日志</summary>
 
+## 2024/08/21-22
+
+refactor(mc_check): 优化untils函数并重构网络调用
+
+删除无用依赖
+
+渲染Version中的彩色字符
+
 ## 2024/08/14
 ### v1.8
 
