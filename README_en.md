@@ -1,5 +1,7 @@
 # Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
+(Other Version)[https://github.com/molanp/nonebot_plugin_mccheck/]
+
 English|[简体中文](README.md)
 
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
