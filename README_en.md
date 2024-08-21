@@ -1,6 +1,6 @@
 # Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
-(Other Version)[https://github.com/molanp/nonebot_plugin_mccheck/]
+[Other Version](https://github.com/molanp/nonebot_plugin_mccheck/)
 
 English|[简体中文](README.md)
 
@@ -41,13 +41,16 @@ English|[简体中文](README.md)
 
 This diagram uses version v1.8↑
 
-## How to use
-- Install
+## Install
   - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
-- Use
-  - mcheck [ip]:[port]
-  - lang_now (view current output language)
-  - set_lang [Language] (set output language)
+
+## 🎉 Usage
+| Command | Parameter | Scope | Description |
+|:-------:|:---------:|:-----:|:-----------:|
+| `mcheck` | `[ip]:[port]` or `[ip]` | Private/Group Chat | Check Minecraft server status |
+| `set_lang` | Language name | Private/Group Chat | Set the language used by the plugin for rendering images |
+| `lang_now` | None | Private/Group Chat | View the current language used by the plugin for rendering images |
+| `lang_list` | None | Private/Group Chat | View the list of languages supported by the plugin |
 
 # [Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
