@@ -8,22 +8,22 @@ import dns.resolver
 from .data_source import MineStat
 
 
-def readInfo(file):
+def readInfo(file: str) -> dict:
     with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
         return json.loads((f.read()).strip())
 
 
-def create_mine_stat(host, port, timeout):
+def create_mine_stat(host: str, port: int, timeout: int) -> MineStat:
     ms = MineStat(host, port, timeout)
     return ms
 
 
-async def get_mc(host, port, timeout=1):
+async def get_mc(host: str, port: int, timeout: int = 1) -> MineStat:
     ms = await asyncio.to_thread(create_mine_stat, host, port, timeout)
     return ms
 
 
-def is_invalid_address(address):
+def is_invalid_address(address: str) -> bool:
     domain_pattern = r"^(?:(?!_)(?!-)(?!.*--)[a-zA-Z0-9\u4e00-\u9fa5\-_]{1,63}\.?)+[a-zA-Z\u4e00-\u9fa5]{2,}$"
     ipv4_pattern = r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
     ipv6_pattern = r"^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$"
@@ -35,12 +35,12 @@ def is_invalid_address(address):
     return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
 
 
-async def resolve_srv(ip: str, port: int = 0):
+async def resolve_srv(ip: str, port: int = 0) -> list:
     result = await asyncio.to_thread(resolve_srv_sync, ip, port)
     return result
 
 
-def resolve_srv_sync(ip: str, port: int = 0):
+def resolve_srv_sync(ip: str, port: int = 0) -> list:
     resolver = dns.resolver.Resolver()
     resolver.nameservers = ['223.5.5.5', '1.1.1.1']
 
@@ -50,7 +50,7 @@ def resolve_srv_sync(ip: str, port: int = 0):
         if not response:
             return [ip, port]
 
-        for rdata in response:
+        for rdata in response:  # type: ignore
             address = str(rdata.target).rstrip('.')
             if port == 0:
                 port = rdata.port
@@ -60,7 +60,7 @@ def resolve_srv_sync(ip: str, port: int = 0):
     return [ip, port]
 
 
-def parse_motd(json_data):
+def parse_motd(json_data: str) -> str:
     """
     解析MOTD数据并转换为带有自定义十六进制颜色标记的字符串。
 
@@ -233,7 +233,7 @@ class ColoredTextImage:
             return ImageFont.truetype(self.italic_font_path, self.font_size)
         return ImageFont.truetype(self.font_path, self.font_size)
 
-    async def draw_text_with_style(self) -> None:
+    async def draw_text_with_style(self) -> "ColoredTextImage":
         """
         使用指定样式绘制文本。
 
@@ -243,7 +243,6 @@ class ColoredTextImage:
         width, height = self._calculate_dimensions(text)
         self.image = Image.new('RGB', (width, height), self.background_color)
         self.draw = ImageDraw.Draw(self.image)
-        # self.draw_text_with_style(text)
 
         bold = italic = underline = strikethrough = False
         current_color = (0, 0, 0)
@@ -303,17 +302,17 @@ class ColoredTextImage:
                 width = bbox[2] - bbox[0]
 
                 self.draw.text((x_offset, y_offset), char,
-                               fill=current_color, font=font_mod)
+                               fill=current_color, font=font_mod)  # type: ignore
 
                 if underline:
                     underline_y = y_offset + self.font_size
                     self.draw.line((x_offset, underline_y, x_offset + width, underline_y),
-                                   fill=current_color, width=1)
+                                   fill=current_color, width=1)  # type: ignore
 
                 if strikethrough:
                     strikethrough_y = y_offset + self.font_size / 2
                     self.draw.line((x_offset, strikethrough_y, x_offset + width, strikethrough_y),
-                                   fill=current_color, width=1)
+                                   fill=current_color, width=1)  # type: ignore
 
                 x_offset += width
                 i += 1
@@ -339,4 +338,3 @@ class ColoredTextImage:
         self.image.save(byte_io, format='PNG')
         byte_io.seek(0)
         return byte_io.getvalue()
-
