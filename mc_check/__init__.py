@@ -131,7 +131,6 @@ def build_result(ms, text=False):
     base_result = (
         f'\n{lang_data[lang]["version"]}'
         f'{ms.version if text else parse_motd(ms.version + "[#RESET]")}'
-        f'\n{lang_data[lang]["version"]}{ms.version}'
         f'\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}'
         f'\n{lang_data[lang]["address"]}{ms.address}'
         f'\n{lang_data[lang]["port"]}{ms.port}'
