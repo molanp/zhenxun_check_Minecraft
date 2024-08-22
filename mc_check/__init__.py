@@ -104,7 +104,7 @@ async def get_info(ip, port):
                 result = build_result(ms, text=True)
                 await send_text_message(result, ms.favicon, ms.favicon_b64)
         else:
-            await check.finish(Message(f'{lang_data[lang]["offline"]}'), at_sender=True)
+            await check.finish(Message(f'{lang_data[lang][str(ms.connection_status)]}'), at_sender=True)
     except FinishedException:
         pass
     except BaseException as e:
