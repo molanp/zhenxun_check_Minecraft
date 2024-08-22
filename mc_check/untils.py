@@ -60,16 +60,18 @@ def resolve_srv_sync(ip: str, port: int = 0) -> list:
     return [ip, port]
 
 
-def parse_motd(json_data: str) -> str:
+def parse_motd(json_data: str | None) -> str | None:
     """
     解析MOTD数据并转换为带有自定义十六进制颜色标记的字符串。
 
     参数:
-    - json_data (str): MOTD数据。
+    - json_data (str | None): MOTD数据。
 
     返回:
-    - str: 带有自定义十六进制颜色标记的字符串。
+    - str | None: 带有自定义十六进制颜色标记的字符串。
     """
+    if json_data is None:
+        return None
 
     standard_color_map = {
         "black": "[#000]",
@@ -159,6 +161,138 @@ def parse_motd(json_data: str) -> str:
             result += str(extra)
 
         return result + "[#RESET]"
+
+    return parse_extra(json_data)
+
+
+def parse_motd_to_html(json_data: str | None) -> str | None:
+    """
+    解析MOTD数据并转换为带有自定义颜色的HTML字符串。
+
+    参数:
+    - json_data (str|None): MOTD数据。
+
+    返回:
+    - str | None: 带有自定义颜色的HTML字符串。
+    """
+    if json_data is None:
+        return None
+
+    standard_color_map = {
+        "black": ("<font color=\"#000000\">", "</font>"),
+        "dark_blue": ("<font color=\"#0000AA\">", "</font>"),
+        "dark_green": ("<font color=\"#00AA00\">", "</font>"),
+        "dark_aqua": ("<font color=\"#00AAAA\">", "</font>"),
+        "dark_red": ("<font color=\"#AA0000\">", "</font>"),
+        "dark_purple": ("<font color=\"#AA00AA\">", "</font>"),
+        "gold": ("<font color=\"#FFAA00\">", "</font>"),
+        "gray": ("<font color=\"#AAAAAA\">", "</font>"),
+        "dark_gray": ("<font color=\"#555555\">", "</font>"),
+        "blue": ("<font color=\"#0000FF\">", "</font>"),
+        "green": ("<font color=\"#00AA00\">", "</font>"),
+        "aqua": ("<font color=\"#00AAAA\">", "</font>"),
+        "red": ("<font color=\"#AA0000\">", "</font>"),
+        "light_purple": ("<font color=\"#FFAAFF\">", "</font>"),
+        "yellow": ("<font color=\"#FFFF00\">", "</font>"),
+        "white": ("<font color=\"#FFFFFF\">", "</font>"),
+        "reset": ("</strong></i></u></s>", ""),  # 重置所有样式
+        "bold": ("<strong>", "</strong>"),
+        "italic": ("<i>", "</i>"),
+        "underline": ("<u>", "</u>"),
+        "strikethrough": ("<s>", "</s>"),
+        "§0": ("<font color=\"#000000\">", "</font>"),  # black
+        "§1": ("<font color=\"#0000AA\">", "</font>"),  # dark blue
+        "§2": ("<font color=\"#00AA00\">", "</font>"),  # dark green
+        "§3": ("<font color=\"#00AAAA\">", "</font>"),  # dark aqua
+        "§4": ("<font color=\"#AA0000\">", "</font>"),  # dark red
+        "§5": ("<font color=\"#AA00AA\">", "</font>"),  # dark purple
+        "§6": ("<font color=\"#FFAA00\">", "</font>"),  # gold
+        "§7": ("<font color=\"#AAAAAA\">", "</font>"),  # gray
+        "§8": ("<font color=\"#555555\">", "</font>"),  # dark gray
+        "§9": ("<font color=\"#0000FF\">", "</font>"),  # blue
+        "§a": ("<font color=\"#00AA00\">", "</font>"),  # green
+        "§b": ("<font color=\"#00AAAA\">", "</font>"),  # aqua
+        "§c": ("<font color=\"#AA0000\">", "</font>"),  # red
+        "§d": ("<font color=\"#FFAAFF\">", "</font>"),  # light purple
+        "§e": ("<font color=\"#FFFF00\">", "</font>"),  # yellow
+        "§f": ("<font color=\"#FFFFFF\">", "</font>"),  # white
+        "§l": ("<strong>", "</strong>"),  # bold
+        "§m": ("<s>", "</s>"),  # strikethrough
+        "§n": ("<u>", "</u>"),  # underline
+        "§o": ("<i>", "</i>"),  # italic
+        "§r": ("</strong></i></u></s>", ""),  # 重置所有样式
+    }
+
+    def parse_extra(extra, styles=[]):
+        result = ""
+        if isinstance(extra, dict) and "extra" in extra:
+            result += parse_extra(extra["extra"], styles)
+        elif isinstance(extra, dict):
+            color = extra.get("color", "")
+            text = extra.get("text", "")
+
+            # 将颜色转换为 HTML 的 font 标签
+            if color.startswith("#"):
+                hex_color = color[1:]
+                if len(hex_color) == 3:
+                    hex_color = "".join([c * 2 for c in hex_color])
+                color_code = (
+                    f"<font color=\"#{hex_color.upper()}\">", "</font>")
+            else:
+                # 标准颜色
+                color_code = standard_color_map.get(color, ("", ""))
+
+            # 更新样式栈
+            open_tag, close_tag = color_code
+            styles.append(close_tag)
+            result += open_tag + text + close_tag
+        elif isinstance(extra, list):
+            for item in extra:
+                result += parse_extra(item, styles)
+        else:
+            # 处理换行符
+            result += str(extra).replace("\n", "<br>")
+        # 关闭所有打开的样式
+        for tag in reversed(styles):
+            result += tag
+        return result
+
+    try:
+        json_data = json.loads(json_data)
+    except json.JSONDecodeError:
+        result = ""
+        i = 0
+        styles = []
+        while i < len(json_data):
+            if json_data[i] == "§":
+                style_code = json_data[i:i+2]
+                if style_code in standard_color_map:
+                    open_tag, close_tag = standard_color_map[style_code]
+
+                    # 如果是重置，则清空样式栈
+                    if open_tag == "</strong></i></u></s>":
+                        # 清空样式栈并关闭所有打开的样式
+                        for tag in styles:
+                            result += tag
+                        styles.clear()
+                    else:
+                        styles.append(close_tag)
+                        result += open_tag
+                    i += 2
+                    continue
+            # 处理换行符
+            if json_data[i] == "\n":
+                result += "<br>"
+                i += 1
+                continue
+            result += json_data[i]
+            i += 1
+
+        # 在字符串末尾关闭所有打开的样式
+        for tag in styles:
+            result += tag
+
+        return result
 
     return parse_extra(json_data)
 

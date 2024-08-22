@@ -11,11 +11,13 @@ from .untils import (
     is_invalid_address,
     ColoredTextImage,
     parse_motd,
+    parse_motd_to_html,
     readInfo,
     get_mc,
     resolve_srv
 )
 import re
+import os
 import traceback
 import sys
 import base64
@@ -38,7 +40,7 @@ __plugin_meta__ = PluginMetadata(
     """.strip(),
     extra=PluginExtraData(
         author="molanp",
-        version="1.9",
+        version="1.10",
         limits=[PluginCdBlock(result=None)],
         menu_type="一些工具",
         configs=[
@@ -51,7 +53,7 @@ __plugin_meta__ = PluginMetadata(
             RegisterConfig(
                 key="type",
                 value=0,
-                help="结果发送类型，0为发送图片，1为发送文字",
+                help="结果发送类型，0为发送HTML，1为发送图片, 2为发送文本",
                 default_value=0,
                 type=int,
             ),
@@ -71,7 +73,7 @@ lang_list = on_command("语言列表", aliases={'lang_list'}, priority=5, block=
 
 
 @check.handle()
-async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()): # type: ignore
+async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
     plain_text = args.extract_plain_text()
     if plain_text:
         matcher.set_arg("host", args)
@@ -97,12 +99,8 @@ async def get_info(ip, port):
         srv = await resolve_srv(ip, port)
         ms = await get_mc(srv[0], int(srv[1]), timeout=1)
         if ms.online:
-            if message_type == 0:
-                result = build_result(ms)
-                await send_image_message(result, ms.favicon, ms.favicon_b64)
-            else:
-                result = build_result(ms, text=True)
-                await send_text_message(result, ms.favicon, ms.favicon_b64)
+            result = build_result(ms, message_type)
+            await send_message(message_type, result, ms.favicon, ms.favicon_b64)
         else:
             await check.finish(Message(f'{lang_data[lang][str(ms.connection_status)]}'), at_sender=True)
     except FinishedException:
@@ -125,12 +123,31 @@ def parse_host(host_name):
     return address, port
 
 
-def build_result(ms, text=False):
+def build_result(ms, type=0):
     status = f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}'
+    if type == 0:
+        return {
+            "favicon": ms.favicon_b64 if ms.favicon is not None and ms.favicon != "" else "no_favicon.png",
+            "version": parse_motd_to_html(ms.version),
+            "slp_protocol": str(ms.slp_protocol),
+            "address": ms.address,
+            "port": ms.port,
+            "delay": f"{ms.latency}ms",
+            "gamemode": ms.gamemode,
+            "motd": parse_motd_to_html(ms.motd),
+            "players": f'{ms.current_players}/{ms.max_players}',
+            "status": f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}',
+            "lang": lang_data[lang]
+        }
+    elif type == 1:
+        motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.motd)}'
+        version_part = f'\n{lang_data[lang]["version"]}{parse_motd(ms.version)}'
+    elif type == 2:
+        motd_part = f'\n{lang_data[lang]["motd"]}{ms.stripped_motd}'
+        version_part = f'\n{lang_data[lang]["version"]}{ms.version}'
 
     base_result = (
-        f'\n{lang_data[lang]["version"]}'
-        f'{ms.version if text else parse_motd(ms.version)}'
+        f'\n{version_part}'
         f'\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}'
         f'\n{lang_data[lang]["address"]}{ms.address}'
         f'\n{lang_data[lang]["port"]}{ms.port}'
@@ -139,10 +156,6 @@ def build_result(ms, text=False):
 
     if 'BEDROCK' in str(ms.slp_protocol):
         base_result += f'\n{lang_data[lang]["gamemode"]}{ms.gamemode}'
-    if text:
-        motd_part = f'\n{lang_data[lang]["motd"]}{ms.stripped_motd}'
-    else:
-        motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.motd)}'
 
     result = (
         base_result +
@@ -152,6 +165,15 @@ def build_result(ms, text=False):
     )
 
     return result
+
+
+async def send_message(type, result, favicon, favicon_b64):
+    if type == 0:
+        await send_html_message(result)
+    elif type == 1:
+        await send_image_message(result, favicon, favicon_b64)
+    elif type == 2:
+        await send_text_message(result, favicon, favicon_b64)
 
 
 async def send_text_message(result, favicon, favicon_b64):
@@ -165,14 +187,27 @@ async def send_text_message(result, favicon, favicon_b64):
         await check.finish(Message(result), at_sender=True)
 
 
+async def send_html_message(result):
+    from nonebot_plugin_htmlrender import template_to_pic
+    template_dir = os.path.join(os.path.dirname(__file__), "templates")
+
+    pic = await template_to_pic(
+        template_path=template_dir,
+        template_name="default.html",
+        templates={"data": result},
+    )
+    await check.finish(MessageSegment.image(pic), at_sender=True)
+
+
 async def send_image_message(result, favicon, favicon_b64):
-    if favicon is not None and favicon != "":
+    if favicon is not None:
         await check.finish(Message([
             MessageSegment.image(
                 (await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
             ),
             MessageSegment.text('Favicon:'),
-            MessageSegment.image(base64.b64decode(favicon_b64.split(",")[1]))
+            MessageSegment.image(
+                base64.b64decode(favicon_b64.split(",")[1]))
         ]), at_sender=True)
     else:
         await check.finish(MessageSegment.image(

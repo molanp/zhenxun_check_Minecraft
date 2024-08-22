@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <link rel="stylesheet" href="main.css">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Template</title>
+   <style>
+
+   </style>
+</head>
+
+<body>
+   <div class="server-form">
+      <img class="favicon" src="{{ data["favicon"] }}" alt="favicon">
+      <div class="content">
+         <label>
+            {{ data["lang"]["version"]|safe }}{{ data["version"]|safe }}
+         </label>
+         <label>
+            {{ data["lang"]["motd"]|safe }}{{ data["motd"]|safe }}
+         </label>
+         <label>
+            {{ data["lang"]["slp_protocol"]|safe }}{{ data["slp_protocol"]|safe }}
+         </label>
+         <label>
+            {{ data["lang"]["address"]|safe }}{{ data["address"]|safe }}
+         </label>
+         <label>
+            {{ data["lang"]["port"]|safe }}{{ data["port"]|safe }}
+         </label>
+         <label>
+            {{ data["lang"]["delay"]|safe }}{{ data["delay"]|safe}}
+         </label>
+        {% if 'BEDROCK' in data["slp_protocol"] %}
+            <label>{{ data["lang"]["gamemode"]|safe }}{{ data["gamemode"]|safe }}<label>
+        {% endif %}
+         <label>
+            {{ data["lang"]["players"]|safe }}{{ data["players"]|safe }}
+         </label>
+         <label>
+            {{ data["lang"]["status"]|safe }}{{ data["status"]|safe }}
+         </label>
+      </div>
+   </div>
+</body>
+
+</html>
