@@ -1,16 +1,14 @@
-# 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
+# ✨ 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
 [Other Version](https://github.com/molanp/nonebot_plugin_mccheck/)
 
 简体中文|[English](README_en.md)
 
-# 注意，请确保插件文件夹名字为`mc_check`，否则无法获取配置信息
-
-## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
+## 🤓 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
 _如果你需要单文件的旧版本，请切换到分支`old`_
 ***
-## 已实现的功能
+## 📈 已实现的功能
 
 - [x] 适配Unicode全字体与字形
 - [x] 渲染Motd样式
@@ -32,13 +30,13 @@ _如果你需要单文件的旧版本，请切换到分支`old`_
 - [x] 多语言
 - [x] SRV支持
 
-## 未来的功能
+## 📑 未来的功能
 
 - [ ] 获取服务器协议号
 - [ ] 获取服务器官网[如果存在]
 - [ ] 敬请期待
 
-## 测试截图
+## 🖼️ 效果图
 
 v1.9
 
@@ -48,16 +46,20 @@ v1.9
 HTML消息
 ![1.9 html](https://github.com/user-attachments/assets/d0ecffa1-672d-4936-a404-2e12e964ec1e)
 
-## 安装
+## 💿 安装
+
   - 将`mc_check`文件夹放入`extensive_plugin`文件夹或自定义文件夹内
 
 ## 🎉 使用
+
 | 命令 | 参数 | 范围 | 说明 |
 |:---:|:---:|:---:|:---:|
 | `查服` | `[ip]:[端口]` 或 `[ip]` | 私聊/群聊 | 查询Minecraft服务器状态 |
 | `设置语言` | 语言名称 | 私聊/群聊 | 设置插件渲染图片所使用的语言 |
 | `当前语言` | 无 | 私聊/群聊 | 查看当前插件渲染图片所使用的语言 |
 | `语言列表` | 无 | 私聊/群聊 | 查看插件支持的语言列表 |
+
+## ⚙️ 配置
 
 | 配置项 | 必填 | 默认值 | 说明 |
 |:-----:|:----:|:----:|:----:|
