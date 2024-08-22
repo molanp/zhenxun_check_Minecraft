@@ -6,10 +6,11 @@ English|[简体中文](README.md)
 
 ## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
-## If you need an older version of a single file, switch to branch `old`
+_If you need an older version of a single file, switch to branch `old`_
 ***
 ## Implemented functions
 
+- [x] Adapted unicode full fonts and glyphs
 - [x] Render Motd styles
 - [x] Query server nickname
 - [x] Query the maximum number of servers, the current number of people
@@ -37,9 +38,13 @@ English|[简体中文](README.md)
 
 ## Test screenshot
 
-![1.8](https://github.com/user-attachments/assets/01e58773-636e-4e36-9d33-02cbfec3fb4e)
+v1.9
 
-This diagram uses version v1.8↑
+Picture Message
+![1.9 pic](https://github.com/user-attachments/assets/abcda34f-0783-4c1e-b5c1-de9228047a69)
+
+HTML Message
+![1.9 html](https://github.com/user-attachments/assets/3b7eb913-21a2-4c60-b5a7-6311519b6429)
 
 ## Install
   - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
@@ -57,6 +62,11 @@ This diagram uses version v1.8↑
 # Update log
 <details>
 <summary>Update log</summary>
+
+## 2024/08/22
+
+Added html rendering, adapted unicode full fonts and glyphs
+
 
 ## 2024/08/21-22
 

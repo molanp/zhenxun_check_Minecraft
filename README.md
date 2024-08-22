@@ -8,10 +8,11 @@
 
 ## 若有什么好的功能建议，欢迎在[Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)中提出
 ***
-## 如果你需要单文件的旧版本，请切换到分支`old`
+_如果你需要单文件的旧版本，请切换到分支`old`_
 ***
 ## 已实现的功能
 
+- [x] 适配Unicode全字体与字形
 - [x] 渲染Motd样式
 - [x] 查询服务器昵称
 - [x] 查询服务器最大人数,当前人数
@@ -39,9 +40,14 @@
 
 ## 测试截图
 
-![1.8](https://github.com/user-attachments/assets/abcda34f-0783-4c1e-b5c1-de9228047a69)
+v1.9
 
-此图使用v1.8版本↑
+图片消息
+![1.9 pic](https://github.com/user-attachments/assets/abcda34f-0783-4c1e-b5c1-de9228047a69)
+
+HTML消息
+![1.9 html](https://github.com/user-attachments/assets/3b7eb913-21a2-4c60-b5a7-6311519b6429)
+
 ## 安装
   - 将`mc_check`文件夹放入`extensive_plugin`文件夹或自定义文件夹内
 
@@ -53,11 +59,20 @@
 | `当前语言` | 无 | 私聊/群聊 | 查看当前插件渲染图片所使用的语言 |
 | `语言列表` | 无 | 私聊/群聊 | 查看插件支持的语言列表 |
 
+| 配置项 | 必填 | 默认值 | 说明 |
+|:-----:|:----:|:----:|:----:|
+| `language` | 否 | `zh-cn` | 插件渲染图片所使用的语言<br>可用语言:[`zh-cn`,`zh-tw`,`en`] |
+| `type` | 否 | `0` | 插件发送的消息类型(`0`为HTML, `1`为图片, `2`为文本) |
+
 # [下载地址](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
 # 更新日志
 <details>
 <summary>更新日志</summary>
+
+## 2024/08/22
+
+新增html渲染，适配unicode全字体与字形
 
 ## 2024/08/21-22
 
