@@ -158,7 +158,7 @@ def parse_motd(json_data: str) -> str:
         else:
             result += str(extra)
 
-        return result
+        return result + "[#RESET]"
 
     return parse_extra(json_data)
 
