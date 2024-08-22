@@ -1,14 +1,14 @@
-# Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
+# ✨ Minecraft_server_check_plugins for [zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
 [Other Version](https://github.com/molanp/nonebot_plugin_mccheck/)
 
 English|[简体中文](README.md)
 
-## If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
+## 🤓 If you have any good functional suggestions, please put forward them in [Issues](https://github.com/molanp/zhenxun_chafu_Minecraft/issues)
 ***
 _If you need an older version of a single file, switch to branch `old`_
 ***
-## Implemented functions
+## 📈 Implemented functions
 
 - [x] Adapted unicode full fonts and glyphs
 - [x] Render Motd styles
@@ -30,13 +30,13 @@ _If you need an older version of a single file, switch to branch `old`_
 - [x] Multilingual
 - [x] SRV support 
 
-## Future functions
+## 📑 Future functions
 
 - [ ] Get server protocol number
 - [ ] Get server official website (if any)
 - [ ] And more...
 
-## Test screenshot
+## 🖼️ Renderings
 
 v1.9
 
@@ -46,16 +46,26 @@ Picture Message
 HTML Message
 ![1.9 html](https://github.com/user-attachments/assets/18069f2a-4f7e-4994-837b-2b9e0cbf1f74)
 
-## Install
+## 💿 Install
+
   - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
 
 ## 🎉 Usage
+
 | Command | Parameter | Scope | Description |
 |:-------:|:---------:|:-----:|:-----------:|
 | `mcheck` | `[ip]:[port]` or `[ip]` | Private/Group Chat | Check Minecraft server status |
 | `set_lang` | Language name | Private/Group Chat | Set the language used by the plugin for rendering images |
 | `lang_now` | None | Private/Group Chat | View the current language used by the plugin for rendering images |
 | `lang_list` | None | Private/Group Chat | View the list of languages supported by the plugin |
+
+## ⚙️ Configuration
+
+| Configuration Item | Required | Default Value | Description |
+|:-----:|:----:|:----:|:----:|
+| `language` | False | `zh-cn` | Languages used by the plugin to render images<br>Available languages: [`zh-cn`,`zh-tw`,`en`] |
+| `type` | False | `0` | The type of message the plugin sends (`0` for HTML, `1` for image, `2` for text) |
+
 
 # [Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
