@@ -72,6 +72,10 @@ HTML消息
 <details>
 <summary>更新日志</summary>
 
+## 2024/08/23
+
+支持全平台适配器
+
 ## 2024/08/22
 
 新增html渲染，适配unicode全字体与字形

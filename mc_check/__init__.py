@@ -1,12 +1,10 @@
-from nonebot import on_command  # type: ignore
 from zhenxun.services.log import logger  # type: ignore
 from nonebot.plugin import PluginMetadata  # type: ignore
-from nonebot.params import Arg, CommandArg, ArgPlainText  # type: ignore
-from nonebot.matcher import Matcher  # type: ignore
 from zhenxun.configs.config import Config  # type: ignore
 from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
 from nonebot.exception import FinishedException  # type: ignore
-from nonebot.adapters.onebot.v11 import Message, MessageSegment  # type: ignore
+from nonebot_plugin_alconna import Alconna, Args, on_alconna, Match, UniMessage  # type: ignore
+from nonebot_plugin_alconna.uniseg import Text, Image  # type: ignore
 from .untils import (
     is_invalid_address,
     ColoredTextImage,
@@ -40,7 +38,7 @@ __plugin_meta__ = PluginMetadata(
     """.strip(),
     extra=PluginExtraData(
         author="molanp",
-        version="1.10",
+        version="1.11",
         limits=[PluginCdBlock(result=None)],
         menu_type="一些工具",
         configs=[
@@ -66,28 +64,51 @@ message_type = Config.get_config("mc_check", "type")
 lang = Config.get_config("mc_check", "LANGUAGE")
 lang_data = readInfo("language.json")
 
-check = on_command("查服", aliases={'mcheck'}, priority=5, block=True)
-lang_change = on_command("设置语言", aliases={'set_lang'}, priority=5, block=True)
-lang_now = on_command("当前语言", aliases={'lang_now'}, priority=5, block=True)
-lang_list = on_command("语言列表", aliases={'lang_list'}, priority=5, block=True)
+check = on_alconna(
+    Alconna("mcheck", Args["host?", str]),
+    aliases={"查服"},
+    priority=5,
+    block=True,
+)
+
+
+lang_change = on_alconna(
+    Alconna("set_lang", Args["language", str]),
+    aliases={"设置语言"},
+    priority=5,
+    block=True,
+)
+
+lang_now = on_alconna(
+    Alconna("lang_now"),
+    aliases={"当前语言"},
+    priority=5,
+    block=True,
+)
+
+lang_list = on_alconna(
+    Alconna("lang_list"),
+    aliases={"语言列表"},
+    priority=5,
+    block=True,
+)
 
 
 @check.handle()
-async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
-    plain_text = args.extract_plain_text()
-    if plain_text:
-        matcher.set_arg("host", args)
+async def _(host: Match[str]):
+    if host.available:
+        check.set_path_arg("host", host.result)
 
 
-@check.got("host", prompt="IP?")
-async def handle_host(host_name: str = ArgPlainText("host")):  # type: ignore
-    address, port = parse_host(host_name)
+@check.got_path("host", prompt=lang_data[lang]["where_ip"])
+async def handle_check(host: str):
+    address, port = parse_host(host)
 
     if not str(port).isdigit() or not (0 <= int(port) <= 65535):
-        await check.finish(lang_data[lang]["where_port"], at_sender=True)
+        await check.finish(Text(f' {lang_data[lang]["where_port"]}'), at_sender=True)
 
     if is_invalid_address(address):
-        await check.finish(lang_data[lang]["where_ip"], at_sender=True)
+        await check.finish(Text(f' {lang_data[lang]["where_ip"]}'), at_sender=True)
 
     await get_info(address, port)
 
@@ -102,7 +123,7 @@ async def get_info(ip, port):
             result = build_result(ms, message_type)
             await send_message(message_type, result, ms.favicon, ms.favicon_b64)
         else:
-            await check.finish(Message(f'{lang_data[lang][str(ms.connection_status)]}'), at_sender=True)
+            await check.finish(Text(f' {lang_data[lang][str(ms.connection_status)]}'), at_sender=True)
     except FinishedException:
         pass
     except BaseException as e:
@@ -147,7 +168,7 @@ def build_result(ms, type=0):
         version_part = f'\n{lang_data[lang]["version"]}{ms.version}'
 
     base_result = (
-        f'\n{version_part}'
+        f' {version_part}'
         f'\n{lang_data[lang]["slp_protocol"]}{ms.slp_protocol}'
         f'\n{lang_data[lang]["address"]}{ms.address}'
         f'\n{lang_data[lang]["port"]}{ms.port}'
@@ -177,14 +198,14 @@ async def send_message(type, result, favicon, favicon_b64):
 
 
 async def send_text_message(result, favicon, favicon_b64):
-    if favicon is not None and favicon != "":
-        await check.finish(Message([
-            Message(result),
-            MessageSegment.text('favicon:'),
-            MessageSegment.image(base64.b64decode(favicon_b64.split(",")[1]))
+    if favicon is not None:
+        await check.finish(UniMessage([
+            Text(result),
+            Text('\nFavicon:'),
+            Image(raw=base64.b64decode(favicon_b64.split(",")[1]))
         ]), at_sender=True)
     else:
-        await check.finish(Message(result), at_sender=True)
+        await check.finish(UniMessage(result), at_sender=True)
 
 
 async def send_html_message(result):
@@ -196,23 +217,20 @@ async def send_html_message(result):
         template_name="default.html",
         templates={"data": result},
     )
-    await check.finish(MessageSegment.image(pic), at_sender=True)
+    await check.finish(UniMessage(Image(raw=pic)), at_sender=True)
 
 
 async def send_image_message(result, favicon, favicon_b64):
     if favicon is not None:
-        await check.finish(Message([
-            MessageSegment.image(
-                (await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
-            ),
-            MessageSegment.text('Favicon:'),
-            MessageSegment.image(
-                base64.b64decode(favicon_b64.split(",")[1]))
+        await check.finish(UniMessage([
+            Image(raw=(await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
+                  ),
+            Text('Favicon:'),
+            Image(raw=base64.b64decode(favicon_b64.split(",")[1]))
         ]), at_sender=True)
     else:
-        await check.finish(MessageSegment.image(
-            (await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
-        ), at_sender=True)
+        await check.finish(UniMessage(Image(raw=(await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
+                                            )), at_sender=True)
 
 
 async def handle_exception(e):
@@ -220,46 +238,42 @@ async def handle_exception(e):
     error_message = str(e)
     error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]
 
-    result = f'ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
+    result = f' ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
     logger.error(result)
     try:
-        await check.finish(Message(result), at_sender=True)
+        await check.finish(Text(result), at_sender=True)
     except FinishedException:
         pass
 
 
 @lang_change.handle()
-async def handle_first_receive(matcher: Matcher, args: Message = CommandArg()):
-    plain_text = args.extract_plain_text()
-    if plain_text:
-        matcher.set_arg("lang_", args)
+async def _(language: str):
+    if language:
+        await lang_change.finish(Text(await change_language_to(language)), at_sender=True)
+    else:
+        await lang_change.finish(Text(" Language?"), at_sender=True)
 
 
-@lang_change.got("lang_", prompt="Language?")
-async def handle_host(lang_: Message = Arg(), language_name: str = ArgPlainText("lang_")):
-    await lang_change.finish(Message(await change(language_name)), at_sender=True)
-
-
-async def change(language: str):
+async def change_language_to(language: str):
     global lang
     try:
         a = lang_data[language]
     except:
-        return f'No language named "{language}"!'
+        return f' No language named "{language}"!'
     else:
         if language == lang:
-            return f'The language is already "{language}"!'
+            return f' The language is already "{language}"!'
         else:
             lang = language
-            return f'Change to "{language}" success!'
+            return f' Change to "{language}" success!'
 
 
 @lang_now.handle()
 async def _():
-    await lang_now.send(Message(f' Language: {lang}.'), at_sender=True)
+    await lang_now.send(Text(f' Language: {lang}.'), at_sender=True)
 
 
 @lang_list.handle()
 async def _():
     i = '\n'.join(list(lang_data.keys()))
-    await lang_list.send(Message(f"Language:\n{i}"), at_sender=True)
+    await lang_list.send(Text(f" Language:\n{i}"), at_sender=True)
