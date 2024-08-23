@@ -73,6 +73,10 @@ HTML Message
 <details>
 <summary>Update log</summary>
 
+## 2024/08/23
+
+Full platform adapter support
+
 ## 2024/08/22
 
 Added html rendering, adapted unicode full fonts and glyphs
