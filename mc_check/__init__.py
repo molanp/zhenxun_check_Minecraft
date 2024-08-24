@@ -1,10 +1,7 @@
-from zhenxun.services.log import logger  # type: ignore
-from nonebot.plugin import PluginMetadata  # type: ignore
-from zhenxun.configs.config import Config  # type: ignore
-from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
-from nonebot.exception import FinishedException  # type: ignore
-from nonebot_plugin_alconna import Alconna, Args, on_alconna, Match, UniMessage  # type: ignore
-from nonebot_plugin_alconna.uniseg import Text, Image  # type: ignore
+import base64
+import sys
+import traceback
+import os
 from .untils import (
     is_invalid_address,
     ColoredTextImage,
@@ -12,13 +9,23 @@ from .untils import (
     parse_motd_to_html,
     readInfo,
     get_mc,
+    parse_host,
     resolve_srv
 )
-import re
-import os
-import traceback
-import sys
-import base64
+from zhenxun.services.log import logger  # type: ignore
+from nonebot.plugin import PluginMetadata  # type: ignore
+from zhenxun.configs.config import Config  # type: ignore
+from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
+from nonebot import require
+require("nonebot_plugin_alconna")
+from nonebot_plugin_alconna import on_alconna, Match, UniMessage, Text, Image  # type: ignore
+from nonebot.plugin import PluginMetadata  # type: ignore
+from nonebot.exception import FinishedException  # type: ignore
+from arclet.alconna import (
+    Args,
+    Alconna,
+)
+
 
 __plugin_meta__ = PluginMetadata(
     name="Minecraft查服",
@@ -38,7 +45,7 @@ __plugin_meta__ = PluginMetadata(
     """.strip(),
     extra=PluginExtraData(
         author="molanp",
-        version="1.11",
+        version="1.12",
         limits=[PluginCdBlock(result=None)],
         menu_type="一些工具",
         configs=[
@@ -58,7 +65,6 @@ __plugin_meta__ = PluginMetadata(
         ],
     ).dict(),
 )
-
 
 message_type = Config.get_config("mc_check", "type")
 lang = Config.get_config("mc_check", "LANGUAGE")
@@ -102,12 +108,12 @@ async def _(host: Match[str]):
 
 @check.got_path("host", prompt=lang_data[lang]["where_ip"])
 async def handle_check(host: str):
-    address, port = parse_host(host)
+    address, port = await parse_host(host)
 
     if not str(port).isdigit() or not (0 <= int(port) <= 65535):
         await check.finish(Text(f' {lang_data[lang]["where_port"]}'), at_sender=True)
 
-    if is_invalid_address(address):
+    if await is_invalid_address(address):
         await check.finish(Text(f' {lang_data[lang]["where_ip"]}'), at_sender=True)
 
     await get_info(address, port)
@@ -118,9 +124,9 @@ async def get_info(ip, port):
 
     try:
         srv = await resolve_srv(ip, port)
-        ms = await get_mc(srv[0], int(srv[1]), timeout=1)
+        ms = await get_mc(srv[0], int(srv[1]), timeout=3)
         if ms.online:
-            result = build_result(ms, message_type)
+            result = await build_result(ms, message_type)
             await send_message(message_type, result, ms.favicon, ms.favicon_b64)
         else:
             await check.finish(Text(f' {lang_data[lang][str(ms.connection_status)]}'), at_sender=True)
@@ -130,39 +136,25 @@ async def get_info(ip, port):
         await handle_exception(e)
 
 
-def parse_host(host_name):
-    if '.' in host_name:
-        parts = host_name.strip().split(':')
-        address = parts[0]
-        port = parts[1] if len(parts) > 1 else 0
-    else:
-        pattern = r'\[(.+)\](?::(\d+))?$'
-        match = re.match(pattern, host_name)
-        address = match.group(1)  # type: ignore
-        port = match.group(2) if match.group(2) else 0  # type: ignore
-
-    return address, port
-
-
-def build_result(ms, type=0):
+async def build_result(ms, type=0):
     status = f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}'
     if type == 0:
         return {
             "favicon": ms.favicon_b64 if ms.favicon is not None and ms.favicon != "" else "no_favicon.png",
-            "version": parse_motd_to_html(ms.version),
+            "version": await parse_motd_to_html(ms.version),
             "slp_protocol": str(ms.slp_protocol),
             "address": ms.address,
             "port": ms.port,
             "delay": f"{ms.latency}ms",
             "gamemode": ms.gamemode,
-            "motd": parse_motd_to_html(ms.motd),
+            "motd": await parse_motd_to_html(ms.motd),
             "players": f'{ms.current_players}/{ms.max_players}',
             "status": f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}',
             "lang": lang_data[lang]
         }
     elif type == 1:
-        motd_part = f'\n{lang_data[lang]["motd"]}{parse_motd(ms.motd)}'
-        version_part = f'\n{lang_data[lang]["version"]}{parse_motd(ms.version)}'
+        motd_part = f'\n{lang_data[lang]["motd"]}{await parse_motd(ms.motd)}'
+        version_part = f'\n{lang_data[lang]["version"]}{await parse_motd(ms.version)}'
     elif type == 2:
         motd_part = f'\n{lang_data[lang]["motd"]}{ms.stripped_motd}'
         version_part = f'\n{lang_data[lang]["version"]}{ms.version}'
@@ -236,7 +228,8 @@ async def send_image_message(result, favicon, favicon_b64):
 async def handle_exception(e):
     error_type = type(e).__name__
     error_message = str(e)
-    error_traceback = traceback.extract_tb(sys.exc_info()[2])[-2]
+    trace_info = traceback.extract_tb(sys.exc_info()[2])
+    error_traceback = trace_info[-2] if len(trace_info) > 1 else trace_info[-1]
 
     result = f' ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
     logger.error(result)
