@@ -10,6 +10,7 @@ _If you need an older version of a single file, switch to branch `old`_
 ***
 ## 📈 Implemented functions
 
+- [x] Full platform adapter support
 - [x] Adapted unicode full fonts and glyphs
 - [x] Render Motd styles
 - [x] Query server nickname
