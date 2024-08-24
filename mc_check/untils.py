@@ -23,7 +23,24 @@ async def get_mc(host: str, port: int, timeout: int = 1) -> MineStat:
     return ms
 
 
-def is_invalid_address(address: str) -> bool:
+async def parse_host(host_name):
+    pattern = r'(?:\[(.+?)\]|(.+?))(?::(\d+))?$'
+    match = re.match(pattern, host_name)
+
+    if match:
+        address = match.group(1) or match.group(2)
+        port = int(match.group(3)) if match.group(
+            3) else None
+
+        port = port if port is not None else 0
+
+    else:
+        return host_name, 0
+
+    return address, port
+
+
+async def is_invalid_address(address: str) -> bool:
     domain_pattern = r"^(?:(?!_)(?!-)(?!.*--)[a-zA-Z0-9\u4e00-\u9fa5\-_]{1,63}\.?)+[a-zA-Z\u4e00-\u9fa5]{2,}$"
     ipv4_pattern = r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
     ipv6_pattern = r"^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$"
@@ -60,7 +77,7 @@ def resolve_srv_sync(ip: str, port: int = 0) -> list:
     return [ip, port]
 
 
-def parse_motd(json_data: str | None) -> str | None:
+async def parse_motd(json_data: str | None) -> str | None:
     """
     解析MOTD数据并转换为带有自定义十六进制颜色标记的字符串。
 
@@ -165,7 +182,7 @@ def parse_motd(json_data: str | None) -> str | None:
     return parse_extra(json_data)
 
 
-def parse_motd_to_html(json_data: str | None) -> str | None:
+async def parse_motd_to_html(json_data: str | None) -> str | None:
     """
     解析MOTD数据并转换为带有自定义颜色的HTML字符串。
 
