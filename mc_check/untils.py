@@ -67,7 +67,7 @@ def resolve_srv_sync(ip: str, port: int = 0) -> list:
         if not response:
             return [ip, port]
 
-        for rdata in response:  # type: ignore
+        for rdata in response:
             address = str(rdata.target).rstrip('.')
             if port == 0:
                 port = rdata.port
@@ -453,17 +453,17 @@ class ColoredTextImage:
                 width = bbox[2] - bbox[0]
 
                 self.draw.text((x_offset, y_offset), char,
-                               fill=current_color, font=font_mod)  # type: ignore
+                               fill=current_color, font=font_mod)
 
                 if underline:
                     underline_y = y_offset + self.font_size
                     self.draw.line((x_offset, underline_y, x_offset + width, underline_y),
-                                   fill=current_color, width=1)  # type: ignore
+                                   fill=current_color, width=1)
 
                 if strikethrough:
                     strikethrough_y = y_offset + self.font_size / 2
                     self.draw.line((x_offset, strikethrough_y, x_offset + width, strikethrough_y),
-                                   fill=current_color, width=1)  # type: ignore
+                                   fill=current_color, width=1)
 
                 x_offset += width
                 i += 1
