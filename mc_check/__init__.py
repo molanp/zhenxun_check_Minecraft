@@ -12,15 +12,15 @@ from .untils import (
     parse_host,
     resolve_srv
 )
-from zhenxun.services.log import logger  # type: ignore
-from nonebot.plugin import PluginMetadata  # type: ignore
-from zhenxun.configs.config import Config  # type: ignore
-from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig  # type: ignore
+from zhenxun.services.log import logger
+from nonebot.plugin import PluginMetadata
+from zhenxun.configs.config import Config
+from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig
 from nonebot import require
 require("nonebot_plugin_alconna")
-from nonebot_plugin_alconna import on_alconna, Match, UniMessage, Text, Image  # type: ignore
-from nonebot.plugin import PluginMetadata  # type: ignore
-from nonebot.exception import FinishedException  # type: ignore
+from nonebot_plugin_alconna import on_alconna, Match, UniMessage, Text, Image
+from nonebot.plugin import PluginMetadata
+from nonebot.exception import FinishedException
 from arclet.alconna import (
     Args,
     Alconna,
@@ -111,10 +111,10 @@ async def handle_check(host: str):
     address, port = await parse_host(host)
 
     if not str(port).isdigit() or not (0 <= int(port) <= 65535):
-        await check.finish(Text(f' {lang_data[lang]["where_port"]}'), at_sender=True)
+        await check.finish(Text(f' {lang_data[lang]["where_port"]}'), reply_to=True)
 
     if await is_invalid_address(address):
-        await check.finish(Text(f' {lang_data[lang]["where_ip"]}'), at_sender=True)
+        await check.finish(Text(f' {lang_data[lang]["where_ip"]}'), reply_to=True)
 
     await get_info(address, port)
 
@@ -129,7 +129,7 @@ async def get_info(ip, port):
             result = await build_result(ms, message_type)
             await send_message(message_type, result, ms.favicon, ms.favicon_b64)
         else:
-            await check.finish(Text(f' {lang_data[lang][str(ms.connection_status)]}'), at_sender=True)
+            await check.finish(Text(f' {lang_data[lang][str(ms.connection_status)]}'), reply_to=True)
     except FinishedException:
         pass
     except BaseException as e:
@@ -195,9 +195,9 @@ async def send_text_message(result, favicon, favicon_b64):
             Text(result),
             Text('\nFavicon:'),
             Image(raw=base64.b64decode(favicon_b64.split(",")[1]))
-        ]), at_sender=True)
+        ]), reply_to=True)
     else:
-        await check.finish(UniMessage(result), at_sender=True)
+        await check.finish(UniMessage(result), reply_to=True)
 
 
 async def send_html_message(result):
@@ -209,7 +209,7 @@ async def send_html_message(result):
         template_name="default.html",
         templates={"data": result},
     )
-    await check.finish(UniMessage(Image(raw=pic)), at_sender=True)
+    await check.finish(UniMessage(Image(raw=pic)), reply_to=True)
 
 
 async def send_image_message(result, favicon, favicon_b64):
@@ -219,10 +219,10 @@ async def send_image_message(result, favicon, favicon_b64):
                   ),
             Text('Favicon:'),
             Image(raw=base64.b64decode(favicon_b64.split(",")[1]))
-        ]), at_sender=True)
+        ]), reply_to=True)
     else:
         await check.finish(UniMessage(Image(raw=(await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
-                                            )), at_sender=True)
+                                            )), reply_to=True)
 
 
 async def handle_exception(e):
@@ -234,7 +234,7 @@ async def handle_exception(e):
     result = f' ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}'
     logger.error(result)
     try:
-        await check.finish(Text(result), at_sender=True)
+        await check.finish(Text(result), reply_to=True)
     except FinishedException:
         pass
 
@@ -242,9 +242,9 @@ async def handle_exception(e):
 @lang_change.handle()
 async def _(language: str):
     if language:
-        await lang_change.finish(Text(await change_language_to(language)), at_sender=True)
+        await lang_change.finish(Text(await change_language_to(language)), reply_to=True)
     else:
-        await lang_change.finish(Text(" Language?"), at_sender=True)
+        await lang_change.finish(Text(" Language?"), reply_to=True)
 
 
 async def change_language_to(language: str):
@@ -263,10 +263,10 @@ async def change_language_to(language: str):
 
 @lang_now.handle()
 async def _():
-    await lang_now.send(Text(f' Language: {lang}.'), at_sender=True)
+    await lang_now.send(Text(f' Language: {lang}.'), reply_to=True)
 
 
 @lang_list.handle()
 async def _():
     i = '\n'.join(list(lang_data.keys()))
-    await lang_list.send(Text(f" Language:\n{i}"), at_sender=True)
+    await lang_list.send(Text(f" Language:\n{i}"), reply_to=True)
