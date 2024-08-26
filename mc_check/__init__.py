@@ -66,8 +66,8 @@ __plugin_meta__ = PluginMetadata(
     ).dict(),
 )
 
-message_type = Config.get_config("mc_check", "type")
-lang = Config.get_config("mc_check", "LANGUAGE")
+message_type = Config.get_config("mc_check", "type", 0)
+lang = Config.get_config("mc_check", "LANGUAGE", "zh-cn")
 lang_data = readInfo("language.json")
 
 check = on_alconna(
