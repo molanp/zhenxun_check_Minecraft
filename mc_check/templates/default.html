@@ -14,7 +14,7 @@
 
 <body>
    <div class="server-form">
-      <img class="favicon" src="{{ data["favicon"] }}" alt="无法显示favicon，因为监听端口与转发端口不一致">
+      <img class="favicon" src="{{ data["favicon"] |safe }}" alt="无法显示favicon，因为监听端口与转发端口不一致">
       <div class="content">
          <label>
             {{ data["lang"]["version"]|safe }}{{ data["version"]|safe }}
