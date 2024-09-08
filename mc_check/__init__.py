@@ -140,7 +140,7 @@ async def build_result(ms, type=0):
     status = f'{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}'
     if type == 0:
         return {
-            "favicon": ms.favicon_b64 if ms.favicon is not None and ms.favicon != "" else "no_favicon.png",
+            "favicon": ms.favicon_b64 if ms.favicon_b64 is not None and ms.favicon_b64 != "" else "no_favicon.png",
             "version": await parse_motd_to_html(ms.version),
             "slp_protocol": str(ms.slp_protocol),
             "address": ms.address,
