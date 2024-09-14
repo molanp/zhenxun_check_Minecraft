@@ -5,6 +5,7 @@ import ujson as json
 import os
 import asyncio
 import dns.resolver
+import base64
 from .data_source import MineStat
 
 
@@ -13,6 +14,21 @@ def readInfo(file: str) -> dict:
         return json.loads((f.read()).strip())
 
 
+def is_image_valid(image_data):
+    try:
+        image_bytes = io.BytesIO(base64.b64decode(image_data))
+        image = Image.open(image_bytes)
+        image.verify()
+        return True
+    except (IOError, SyntaxError) as e:
+        return False
+
+# 示例用法
+ms_favicon_b64 = "your_base64_encoded_image_string_here"
+if is_image_valid(ms_favicon_b64):
+    print("图片有效")
+else:
+    print("图片损坏")
 def create_mine_stat(host: str, port: int, timeout: int) -> MineStat:
     ms = MineStat(host, port, timeout)
     return ms
