@@ -14,12 +14,14 @@ def readInfo(file: str) -> dict:
         return json.loads((f.read()).strip())
 
 def is_image_valid(image_data):
+    if not isinstance(image_data, str) or len(image_data) < 10:
+        return False
     try:
-        image_bytes = io.BytesIO(base64.b64decode(image_data))
-        image = Image.open(image_bytes)
-        image.verify()
+        image_bytes = io.BytesIO(base64.b64decode(image_data))    
+        with Image.open(image_bytes) as img:
+            img.verify()
         return True
-    except (IOError, SyntaxError) as e:
+    except (IOError, SyntaxError, ValueError) as e:
         return False
 
 def create_mine_stat(host: str, port: int, timeout: int) -> MineStat:
