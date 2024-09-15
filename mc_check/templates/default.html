@@ -11,39 +11,7 @@
 
 <body>
    <div class="server-form">
-      <img class="favicon" src="{{ if data["favicon"] else "no_favicon.png" }}" alt="Fail to show favicon.">
-      <div class="content">
-         <label>
-            {{ data["lang"]["version"]|safe }}{{ data["version"]|safe }}
-         </label>
-         <label>
-            {{ data["lang"]["motd"]|safe }}{{ data["motd"]|safe }}
-         </label>
-         <label>
-            {{ data["lang"]["slp_protocol"]|safe }}{{ data["slp_protocol"]|safe }}
-         </label>
-         <label>
-            {{ data["lang"]["address"]|safe }}{{ data["address"]|safe }}
-         </label>
-         <label>
-            {{ data["lang"]["port"]|safe }}{{ data["port"]|safe }}
-         </label>
-         <label>
-            {{ data["lang"]["delay"]|safe }}{{ data["delay"]|safe}}
-         </label>
-        {% if 'BEDROCK' in data["slp_protocol"] %}
-            <label>{{ data["lang"]["gamemode"]|safe }}{{ data["gamemode"]|safe }}</label>
-        {% endif %}
-         <label>
-            {{ data["lang"]["players"]|safe }}{{ data["players"]|safe }}
-         </label>
-         <label>
-            {{ data["lang"]["status"]|safe }}{{ data["status"]|safe }}
-         </label>
-      </div>
-   </div>
-   <div class="server-form">
-      <img class="favicon" src="{{ if data["favicon"] else "no_favicon.png" }}" alt="Fail to show favicon.">
+      <img class="favicon" src="{{ data["favicon"]" }}" alt="Fail to show favicon.">
       <div class="content">
          <label>
             {{ data["lang"]["version"]|safe }}{{ data["version"]|safe }}
