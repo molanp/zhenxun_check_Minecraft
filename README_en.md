@@ -74,6 +74,16 @@ HTML Message
 <details>
 <summary>Update log</summary>
 
+## 2024/09/15
+
+Updated MineStat version to 2.6.3 to support the latest protocol. Optimize the player data fetching logic to ensure more robustness in handling player information.
+
+Remove useless style tags from default HTML templates to clean up code structure.
+
+Enhance the robustness of the image validation functions by adding additional input checks and handling possible exceptions to make image validation more reliable.
+
+Translated with DeepL.com (free version)
+
 ## 2024/08/23
 
 Full platform adapter support
