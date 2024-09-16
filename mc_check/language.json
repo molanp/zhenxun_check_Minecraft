@@ -2,7 +2,7 @@
     "zh-cn": {
         "where_ip": "不知道你服务器的IP在哪里，在你心里吗?",
         "where_port": "你看看这是正经端口吗？",
-        "dns_fail": "无法解析域名，请检查你的域名是否正确！",
+        "dns_fail": "DNS解析失败，请稍后再试!",
         "SUCCESS": "(请求和响应解析成功)",
         "CONNFAIL": "无法建立服务器连接(服务器脱机，主机名或端口错误？)",
         "TIMEOUT": "连接超时(服务器负载过大？防火墙规则是否放行？)",
@@ -21,7 +21,7 @@
     "zh-tw": {
         "where_ip": "不知道你伺服器的IP在哪裡，在你心裡嗎?",
         "where_port": "你看看這是正經端口嗎？",
-        "dns_fail": "無法解析域名，請檢查你的域名是否正確！",
+        "dns_fail": "DNS解析失敗，請稍後再試！",
         "SUCCESS": "(請求和響應解析成功)",
         "CONNFAIL": "無法建立伺服器連接(伺服器脫機，主機名或端口錯誤？)",
         "TIMEOUT": "連接超時(伺服器負載過大？防火牆規則是否放行？)",
@@ -40,7 +40,7 @@
     "en": {
         "where_ip": "Where is the IP of your server?",
         "where_port": "Wrong port!",
-        "dns_fail": "Unable to resolve the domain name. Please check your domain name is correct!",
+        "dns_fail": "DNS resolution failed, please try again later!",
         "SUCCESS": "(Request & response parsing OK)",
         "CONNFAIL": "The socket to the server could not be established. (Server offline, wrong hostname or port?)",
         "TIMEOUT": "The connection timed out. (Server under too much load? Firewall rules OK?)",
