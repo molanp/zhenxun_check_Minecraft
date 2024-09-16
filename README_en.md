@@ -74,6 +74,9 @@ HTML Message
 <details>
 <summary>Update log</summary>
 
+## 2024/09/16
+Fix missing characters due to rendering gradients.
+
 ## 2024/09/15
 
 Updated MineStat version to 2.6.3 to support the latest protocol. Optimize the player data fetching logic to ensure more robustness in handling player information.
@@ -82,31 +85,29 @@ Remove useless style tags from default HTML templates to clean up code structure
 
 Enhance the robustness of the image validation functions by adding additional input checks and handling possible exceptions to make image validation more reliable.
 
-Translated with DeepL.com (free version)
-
 ## 2024/08/23
 
-Full platform adapter support
+Full platform adapter support.
 
 ## 2024/08/22
 
-Added html rendering, adapted unicode full fonts and glyphs
+Added html rendering, adapted unicode full fonts and glyphs.
 
 
 ## 2024/08/21-22
 
-refactor(mc_check): optimize untils function and refactor network calls
+refactor(mc_check): optimize untils function and refactor network calls.
 
-Remove useless dependencies
+Remove useless dependencies.
 
-Render colored characters in Version
+Render colored characters in Version.
 
 ## 2024/08/14
 ### v1.8
 
 Fully adapted to dev Zhenxun Bot, migrate the plugin configuration to `PluginMetadata`
 
-Format the code to increase readability
+Format the code to increase readability.
 
 ## 2024/08/12
 
@@ -118,7 +119,7 @@ fix SRV resolver
 
 ## 2023/02/22
 ### v1.3
-[add support for the Query / GamSpot4 / UT3 protocol](https://github.com/FragLand/minestat/pull/166)
+[add support for the Query / GamSpot4 / UT3 protocol](https://github.com/FragLand/minestat/pull/166).
   
 ## 2023/02/05
 ### v1.2
@@ -126,15 +127,15 @@ SRV support
 
 ## 2023/01/14
 ### v1.1
-The socket return value is fault-tolerant
-Multilingual file configuration
+The socket return value is fault-tolerant.
+Multilingual file configuration.
 
 ## 2023/01/12
 Sending favicon is supported.
 
 ## 2023/01/08
 ### v1.0
-Remove external dependencies and use local dependencies
+Remove external dependencies and use local dependencies.
 No longer rely on external API.
 
 ## 2023/01/05
@@ -143,7 +144,7 @@ Change the command trigger rule, and prompt for input when there are no paramete
 
 ## 2022/12/26
 ### v0.8
-Change the bedrock version to use the Chinese API source
+Change the bedrock version to use the Chinese API source.
 
 ## 2022/11/14
 ### v0.7
@@ -160,6 +161,7 @@ The timeout judgment is cancelled, but the response time may become longer.
 If you frequently report errors, you may encounter network fluctuations (the bedrock version of the api site is unstable).Please try restarting the bot.
 
 If there is no port (and no `:`) after `IP` is entered, the default port [25565/19132] will be used automatically.
+
 ## 2022/11/13
 ### v0.6-plus
 README file rewriting.
@@ -169,6 +171,7 @@ Sending error messages is supported.
 Support query UDP protocol server.
 ### v0.6[beta]
 Query UDP protocol server is supported, but the command conflicts.[Repaired]
+
 ## 2022/11/12
 ### v0.5
 README file rewriting.
@@ -176,6 +179,7 @@ README file rewriting.
 Sort out the code.
 
 More accurate server latency.
+
 ## 2022/11/09
 ### v0.4-fix[The first version in releases]
 Rename file
@@ -185,9 +189,11 @@ Fix the error caused when favicon does not exist.
 Sending favicon is supported.
 
 More sensitive trigger mode.
+
 ## 2022/10/31
 ### vfix-0.2
 Update usage.
+
 ## 2022/10/25
 ### v0.1[tag new,first version]
 Support JAVA server query.
