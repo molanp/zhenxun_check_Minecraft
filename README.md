@@ -1,6 +1,6 @@
 # ✨ 我的世界服务器状态查询插件，适配[zhenxun_bot](https://github.com/hibikier/zhenxun_bot)
 
-[Other Version](https://github.com/molanp/nonebot_plugin_mccheck/)
+[Nonebot Version](https://github.com/molanp/nonebot_plugin_mccheck/)
 
 简体中文|[English](README_en.md)
 
