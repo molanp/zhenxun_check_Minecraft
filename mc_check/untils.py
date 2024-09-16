@@ -1,36 +1,50 @@
 from PIL import Image, ImageDraw, ImageFont
 import io
 import re
-import ujson as json
+import ujson
 import os
 import asyncio
 import dns.resolver
 import base64
-from .data_source import MineStat
+from .data_source import MineStat, SlpProtocols
 
 
 def readInfo(file: str) -> dict:
     with open(os.path.join(os.path.dirname(__file__), file), "r", encoding="utf-8") as f:
-        return json.loads((f.read()).strip())
+        return ujson.loads((f.read()).strip())
+
 
 def is_image_valid(image_data):
     if not isinstance(image_data, str) or len(image_data) < 10:
         return False
     try:
-        image_bytes = io.BytesIO(base64.b64decode(image_data))    
+        image_bytes = io.BytesIO(base64.b64decode(image_data))
         with Image.open(image_bytes) as img:
             img.verify()
         return True
     except (IOError, SyntaxError, ValueError) as e:
         return False
 
-def create_mine_stat(host: str, port: int, timeout: int) -> MineStat:
+
+async def get_mc(host: str, port: int, timeout: int = 5) -> MineStat:
     ms = MineStat(host, port, timeout)
     return ms
 
 
-async def get_mc(host: str, port: int, timeout: int = 1) -> MineStat:
-    ms = await asyncio.to_thread(create_mine_stat, host, port, timeout)
+async def get_bedrock(host: str, port: int, timeout: int = 5) -> MineStat:
+    return MineStat(host, port, timeout, SlpProtocols.BEDROCK_RAKNET)
+
+
+async def get_java(host: str, port: int, timeout: int = 5) -> MineStat:
+    for i in [
+            SlpProtocols.BETA,
+            SlpProtocols.EXTENDED_LEGACY,
+            SlpProtocols.JSON,
+            SlpProtocols.LEGACY,
+            SlpProtocols.QUERY]:
+        ms = MineStat(host, port, timeout, i)
+        if ms.online:
+            break
     return ms
 
 
@@ -147,8 +161,8 @@ async def parse_motd(json_data: str | None) -> str | None:
     }
 
     try:
-        json_data = json.loads(json_data)
-    except json.JSONDecodeError:
+        json_data = ujson.loads(json_data)
+    except ujson.JSONDecodeError:
         result = ""
         i = 0
         while i < len(json_data):
@@ -163,10 +177,12 @@ async def parse_motd(json_data: str | None) -> str | None:
 
         return result
 
-    def parse_extra(extra):
+    async def parse_extra(extra):
         result = ""
         if isinstance(extra, dict) and "extra" in extra:
-            result += parse_extra(extra["extra"])
+            if isinstance(extra, dict) and "text" in extra and extra["text"] != "":
+                result += "[#RESET]" + await parse_extra(extra["text"])
+            result += await parse_extra(extra["extra"])
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
@@ -184,13 +200,13 @@ async def parse_motd(json_data: str | None) -> str | None:
             result += f"{color_code}{text}"
         elif isinstance(extra, list):
             for item in extra:
-                result += parse_extra(item)
+                result += await parse_extra(item)
         else:
             result += str(extra)
 
-        return result + "[#RESET]"
+        return result
 
-    return parse_extra(json_data)
+    return await parse_extra(json_data) + "[#RESET]"
 
 
 async def parse_motd_to_html(json_data: str | None) -> str | None:
@@ -251,10 +267,12 @@ async def parse_motd_to_html(json_data: str | None) -> str | None:
         "§r": ("</strong></i></u></s>", ""),  # 重置所有样式
     }
 
-    def parse_extra(extra, styles=[]):
+    async def parse_extra(extra, styles=[]):
         result = ""
         if isinstance(extra, dict) and "extra" in extra:
-            result += parse_extra(extra["extra"], styles)
+            if isinstance(extra, dict) and "text" in extra and extra["text"] != "":
+                result += await parse_extra(extra["text"], styles)
+            result += await parse_extra(extra["extra"], styles)
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
@@ -276,18 +294,15 @@ async def parse_motd_to_html(json_data: str | None) -> str | None:
             result += open_tag + text + close_tag
         elif isinstance(extra, list):
             for item in extra:
-                result += parse_extra(item, styles)
+                result += await parse_extra(item, styles)
         else:
             # 处理换行符
             result += str(extra).replace("\n", "<br>")
-        # 关闭所有打开的样式
-        for tag in reversed(styles):
-            result += tag
         return result
 
     try:
-        json_data = json.loads(json_data)
-    except json.JSONDecodeError:
+        json_data = ujson.loads(json_data)
+    except ujson.JSONDecodeError:
         result = ""
         i = 0
         styles = []
@@ -322,7 +337,7 @@ async def parse_motd_to_html(json_data: str | None) -> str | None:
 
         return result
 
-    return parse_extra(json_data)
+    return await parse_extra(json_data)
 
 
 class ColoredTextImage:
