@@ -121,7 +121,7 @@ async def _(language: str):
     if language:
         await lang_change.send(Text(await change_language_to(language)), reply_to=True)
     else:
-        await lang_change.send(Text(" Language?"), reply_to=True)
+        await lang_change.send(Text("Language?"), reply_to=True)
 @lang_now.handle()
 async def _():
     await lang_now.send(Text(f'Language: {lang}.'), reply_to=True)
