@@ -39,13 +39,16 @@ _如果你需要单文件的旧版本，请切换到分支`old`_
 
 ## 🖼️ 效果图
 
-v1.9
+v1.16
+
+文本消息
+![1.16 text](https://github.com/user-attachments/assets/7099ded9-9c8c-482f-89e5-a68bd014e67a)
 
 图片消息
-![1.9 pic](https://github.com/user-attachments/assets/abcda34f-0783-4c1e-b5c1-de9228047a69)
+![1.16 pic](https://github.com/user-attachments/assets/3ba422a4-bc41-4401-85c7-f5da2f693b03)
 
 HTML消息
-![1.9 html](https://github.com/user-attachments/assets/d0ecffa1-672d-4936-a404-2e12e964ec1e)
+![1.16 html](https://github.com/user-attachments/assets/09396694-16a4-4907-8b25-3863b181a725)
 
 ## 💿 安装
 
