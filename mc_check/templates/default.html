@@ -11,7 +11,7 @@
 
 <body>
    <div class="server-form">
-      <img class="favicon" src="{{ data["favicon"]" }}" alt="Fail to show favicon.">
+      <img class="favicon" src="{{ data['favicon'] }}" alt="Fail to show favicon.">
       <div class="content">
          <label>
             {{ data["lang"]["version"]|safe }}{{ data["version"]|safe }}
@@ -37,6 +37,11 @@
          <label>
             {{ data["lang"]["players"]|safe }}{{ data["players"]|safe }}
          </label>
+         {#
+         <label>
+            {{ data["lang"]["status"]|safe }}{{ data["status"]|safe }}
+         </label>
+         #}
       </div>
    </div>
 </body>
