@@ -50,6 +50,9 @@ Picture message
 HTML message
 ![1.16 html](https://github.com/user-attachments/assets/09396694-16a4-4907-8b25-3863b181a725)
 
+Geyser server double check(More than just HTML messages are supported, only one is shown here)
+![1.16 geyser](https://github.com/user-attachments/assets/3982c18a-7cc5-4eb2-9f0f-9ec2a16fed2f)
+
 ## 💿 Install
 
   - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
@@ -81,7 +84,7 @@ HTML message
 
 Fill in missing color codes.
 
-Support interoperability service double check.
+Support geyser server double check.
 
 ## 2024/09/16
 

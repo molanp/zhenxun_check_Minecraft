@@ -50,6 +50,9 @@ v1.16
 HTML消息
 ![1.16 html](https://github.com/user-attachments/assets/09396694-16a4-4907-8b25-3863b181a725)
 
+互通服(不止支持HTML消息，此处仅展示一种)
+![1.16 geyser](https://github.com/user-attachments/assets/3982c18a-7cc5-4eb2-9f0f-9ec2a16fed2f)
+
 ## 💿 安装
 
   - 将`mc_check`文件夹放入`extensive_plugin`文件夹或自定义文件夹内
