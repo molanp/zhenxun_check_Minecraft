@@ -74,7 +74,14 @@ HTML Message
 <details>
 <summary>Update log</summary>
 
+## 2024/09/17
+
+Fill in missing color codes.
+
+Support interoperability service double check.
+
 ## 2024/09/16
+
 Fix missing characters due to rendering gradients.
 
 ## 2024/09/15
