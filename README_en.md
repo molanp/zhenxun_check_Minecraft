@@ -39,13 +39,16 @@ _If you need an older version of a single file, switch to branch `old`_
 
 ## 🖼️ Renderings
 
-v1.9
+v1.16
 
-Picture Message
-![1.9 pic](https://github.com/user-attachments/assets/abcda34f-0783-4c1e-b5c1-de9228047a69)
+Text message
+![1.16 text](https://github.com/user-attachments/assets/7099ded9-9c8c-482f-89e5-a68bd014e67a)
 
-HTML Message
-![1.9 html](https://github.com/user-attachments/assets/18069f2a-4f7e-4994-837b-2b9e0cbf1f74)
+Picture message
+![1.16 pic](https://github.com/user-attachments/assets/3ba422a4-bc41-4401-85c7-f5da2f693b03)
+
+HTML message
+![1.16 html](https://github.com/user-attachments/assets/09396694-16a4-4907-8b25-3863b181a725)
 
 ## 💿 Install
 
