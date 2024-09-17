@@ -2,7 +2,6 @@ import io
 import re
 import ujson
 import os
-import asyncio
 import dns.resolver
 import base64
 import sys
@@ -165,7 +164,6 @@ async def get_bedrock(host: str, port: int, timeout: int = 5) -> Tuple[Optional[
     返回:
     - MineStat实例，包含服务器状态信息，如果服务器在线的话；否则可能返回None。
     """
-    result_event = asyncio.Event()
     result = None
     msg = ConnStatus.CONNFAIL
 
