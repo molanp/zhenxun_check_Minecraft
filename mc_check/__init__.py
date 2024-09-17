@@ -33,7 +33,7 @@ __plugin_meta__ = PluginMetadata(
     """.strip(),
     extra=PluginExtraData(
         author="molanp",
-        version="1.16",
+        version="1.17",
         limits=[PluginCdBlock(result=None)],
         menu_type="一些工具",
         configs=[
