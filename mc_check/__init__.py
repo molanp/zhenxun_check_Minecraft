@@ -33,7 +33,7 @@ __plugin_meta__ = PluginMetadata(
     """.strip(),
     extra=PluginExtraData(
         author="molanp",
-        version="1.17",
+        version="1.18",
         limits=[PluginCdBlock(result=None)],
         menu_type="一些工具",
         configs=[
@@ -107,7 +107,7 @@ async def get_info(ip, port):
     global ms
 
     try:
-        message_list = await get_message_list(ip, port)
+        message_list = await get_message_list(ip, port, 5)
         if any(isinstance(i, list) for i in message_list):
             for sublist in message_list:
                 await check.send(UniMessage(sublist), reply_to=True)

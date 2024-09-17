@@ -136,13 +136,24 @@ async def get_mc(host: str, port: int, timeout: int = 5) -> List[Tuple[Optional[
     ]
 
 
-async def get_message_list(ip, port) -> list:
+async def get_message_list(ip: str, port: int, timeout: int = 5) -> list:
+    """
+    异步函数，根据IP和端口获取消息列表。
+
+    参数:
+    - ip (str): 服务器的IP地址。
+    - port (int): 服务器的端口。
+    - timeout (int, 可选): 超时时间，默认为5秒。
+
+    返回:
+    - list: 包含消息的列表。
+    """
     try:
         srv = await resolve_srv(ip, port)
     except dns.resolver.LifetimeTimeout:
         return [Text(f"{lang_data[lang]['dns_fail']}")]
     messages = []
-    ms = await get_mc(srv[0], int(srv[1]), timeout=5)
+    ms = await get_mc(srv[0], int(srv[1]), timeout)
     for i in ms:
         if i[0] is not None:
             messages.append(await build_result(i[0], message_type))
