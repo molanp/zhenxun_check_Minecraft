@@ -86,6 +86,8 @@ Fill in missing color codes.
 
 Support geyser server double check.
 
+Optimize bug catching, fix multi-thread timeout fake deaths.
+
 ## 2024/09/16
 
 Fix missing characters due to rendering gradients.
