@@ -150,7 +150,7 @@ async def get_message_list(ip: str, port: int, timeout: int = 5) -> list:
     """
     try:
         srv = await resolve_srv(ip, port)
-    except dns.resolver.LifetimeTimeout:
+    except (dns.resolver.LifetimeTimeout, dns.resolver.NoNameservers):
         return [Text(f"{lang_data[lang]['dns_fail']}")]
     messages = []
     ms = await get_mc(srv[0], int(srv[1]), timeout)
