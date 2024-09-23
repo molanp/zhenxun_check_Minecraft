@@ -485,13 +485,19 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
     async def parse_extra(extra, styles=[]):
         result = ""
         if isinstance(extra, dict) and "extra" in extra:
-            if "extra" in extra:
-                result += await parse_extra(extra["extra"], styles)
-            if "text" in extra:
-                result += await parse_extra(extra["text"], styles)
+            for key in extra:
+               if key == "extra":
+            	   result += await parse_extra(extra[key], styles)
+               elif key == "text":
+            	   result += await parse_extra(extra[key], styles)
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
+            # 检查字符串特殊样式
+            for i in standard_color_map.keys():
+            	if extra.get(i) == True:
+            		open_tag,close_tag = standard_color_map.get(i)
+            		result += open_tag + text + close_tag
 
             # 将颜色转换为 HTML 的 font 标签
             if color.startswith("#"):
