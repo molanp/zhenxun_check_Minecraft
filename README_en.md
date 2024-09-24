@@ -80,6 +80,14 @@ Geyser server double check(More than just HTML messages are supported, only one 
 <details>
 <summary>Update log</summary>
 
+## 2024/09/23-24
+
+Fix character order exception in json motd rendering
+
+Fix style exception in json motd rendering
+
+Fix filename misspellings
+
 ## 2024/09/17
 
 Fill in missing color codes.
