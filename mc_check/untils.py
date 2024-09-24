@@ -386,11 +386,13 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
 
     async def parse_extra(extra):
         result = ""
+        extra_str = ""
         if isinstance(extra, dict) and "extra" in extra:
-            if "extra" in extra:
-                result += await parse_extra(extra["extra"])
-            if "text" in extra:
-                result += await parse_extra(extra["text"])
+            for key in extra:
+               if key == "extra":
+            	   result += await parse_extra(extra[key])
+               elif key == "text":
+            	   result += await parse_extra(extra[key])
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
@@ -402,8 +404,17 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
                 color_code = f"[#{hex_color.upper()}]"
             else:
                 color_code = standard_color_map.get(color, "")
+             
+            if extra.get("bold") is True:
+            		extra_str += standard_color_map.get("bold")
+            if extra.get("italic") is True:
+            		extra_str += standard_color_map.get("italic")
+            if extra.get("underline") is True:
+            		extra_str += standard_color_map.get("underline")
+            if extra.get("strikethrough") is True:
+            		extra_str += standard_color_map.get("strikethrough")
 
-            result += f"{color_code}{text}"
+            result += f"{extra_str}{color_code}{text}[#RESET]"
         elif isinstance(extra, list):
             for item in extra:
                 result += await parse_extra(item)
@@ -493,12 +504,7 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
-            # 检查字符串特殊样式
-            for i in standard_color_map.keys():
-            	if extra.get(i) == True:
-            		open_tag,close_tag = standard_color_map.get(i)
-            		result += open_tag + text + close_tag
-
+            
             # 将颜色转换为 HTML 的 font 标签
             if color.startswith("#"):
                 hex_color = color[1:]
@@ -512,6 +518,22 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
 
             # 更新样式栈
             open_tag, close_tag = color_code
+            if extra.get("bold") is True:
+            		open_tag_, close_tag_ = standard_color_map.get("bold")
+            		open_tag += open_tag_
+            		close_tag = close_tag_ + close_tag
+            if extra.get("italic") is True:
+            		open_tag_, close_tag_ = standard_color_map.get("italic")
+            		open_tag += open_tag_
+            		close_tag = close_tag_ + close_tag
+            if extra.get("underline") is True:
+            		open_tag_, close_tag_ = standard_color_map.get("underline")
+            		open_tag += open_tag_
+            		close_tag = close_tag_ + close_tag
+            if extra.get("strikethrough") is True:
+            		open_tag_, close_tag_ = standard_color_map.get("strikethrough")
+            		open_tag += open_tag_
+            		close_tag = close_tag_ + close_tag
             styles.append(close_tag)
             result += open_tag + text + close_tag
         elif isinstance(extra, list):
