@@ -180,7 +180,7 @@ async def get_bedrock(host: str, port: int, timeout: int = 5) -> Tuple[Optional[
     if result.online:
         return result, ConnStatus.SUCCESS
     else:
-        return None, result.connection_status
+        return None, ConnStatus.CONNFAIL
 
 
 async def get_java(host: str, port: int, timeout: int = 5) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
@@ -213,7 +213,7 @@ async def get_java(host: str, port: int, timeout: int = 5) -> Tuple[Optional[Min
     if result.online:
         return result, ConnStatus.SUCCESS
     else:
-        return None, result.connection_status
+        return None, ConnStatus.CONNFAIL
 
 
 async def parse_host(host_name) -> Tuple[str, int]:
