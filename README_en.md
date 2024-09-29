@@ -55,7 +55,7 @@ Geyser server double check(More than just HTML messages are supported, only one 
 
 ## 💿 Install
 
-  - Put `mc_check` folder in `extensive_plugin` folder or custom folder.
+  - Put `mc_check` folder in `plugins` folder or custom folder.
 
 ## 🎉 Usage
 
