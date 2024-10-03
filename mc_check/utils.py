@@ -540,9 +540,8 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
             for item in extra:
                 result += await parse_extra(item, styles)
         else:
-            # 处理换行符
-            result += str(extra).replace("\n", "<br>")
-        return result
+            result += str(extra)
+        return result.replace("\n", "<br>")
 
     try:
         json_data = ujson.loads(json_data)
