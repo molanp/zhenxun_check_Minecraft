@@ -73,6 +73,13 @@ Geyser server double check(More than just HTML messages are supported, only one 
 | `language` | False | `zh-cn` | Languages used by the plugin to render images<br>Available languages: [`zh-cn`,`zh-tw`,`en`] |
 | `type` | False | `0` | The type of message the plugin sends (`0` for HTML, `1` for image, `2` for text) |
 
+## 🎲 Comparison of message types
+
+| Type | Special Styles | Favicon | Colored underline/strikethrough | Full Unicode font support |
+|:-----:|:-----:|:-----:|:-----:|:-----:|
+| Text | ❌ | ⭕ | ❌ | ⭕ |
+| Picture | ⭕ | ⭕ | ⭕ | ❌ |
+| HTML | ⭕ | ⭕ | ❌ | ⭕ |
 
 # [Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
