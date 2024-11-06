@@ -282,7 +282,7 @@ async def resolve_srv(ip: str, port: int = 0) -> list:
         list: 包含服务器地址和端口的列表。
     """
     resolver = dns.resolver.Resolver()
-    resolver.nameservers = ["223.5.5.5", "1.1.1.1"]
+    #resolver.nameservers = ["223.5.5.5", "1.1.1.1"]
 
     try:
         response = resolver.resolve(f"_minecraft._tcp.{ip}", "SRV")
