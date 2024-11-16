@@ -30,6 +30,7 @@ _If you need an older version of a single file, switch to branch `old`_
 - [x] Query server favicon
 - [x] Multilingual
 - [x] SRV support 
+- [x] Fully colored underlined/strikethrough
 
 ## 📑 Future functions
 
