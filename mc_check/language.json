@@ -15,8 +15,7 @@
         "delay": "延迟：",
         "motd": "Motd：",
         "players": "人数：",
-        "status": "状态码：",
-        "offline": "服务器不在线！"
+        "status": "状态码："
     },
     "zh-tw": {
         "where_ip": "不知道你伺服器的IP在哪裡，在你心裡嗎?",
@@ -34,8 +33,7 @@
         "delay": "延遲：",
         "motd": "Motd：",
         "players": "人數：",
-        "status": "狀態碼：",
-        "offline": "伺服器不在線！"
+        "status": "狀態碼："
     },
     "en": {
         "where_ip": "Where is the IP of your server?",
@@ -53,7 +51,6 @@
         "delay": "Delay: ",
         "motd": "Motd: ",
         "players": "Players: ",
-        "status": "Status: ",
-        "offline": "Server is offline!"
+        "status": "Status: "
     }
 }

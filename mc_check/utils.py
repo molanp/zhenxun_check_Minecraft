@@ -1,3 +1,4 @@
+import contextlib
 import io
 import re
 import ujson
@@ -6,15 +7,17 @@ import dns.resolver
 import base64
 import sys
 import traceback
-from zhenxun.services.log import logger
+from zhenxun.services.log import logger # type: ignore
 from .data_source import MineStat, SlpProtocols, ConnStatus
 from .configs import lang_data, lang, message_type
 from PIL import Image, ImageDraw, ImageFont
 from typing import Optional, Tuple, List
 from nonebot import require
+
 require("nonebot_plugin_alconna")
-from nonebot_plugin_alconna import Text
-from nonebot_plugin_alconna import Image as NImage
+from nonebot_plugin_alconna import Text  # type: ignore # noqa: E402
+from nonebot_plugin_alconna import Image as NImage  # type: ignore # noqa: E402
+
 
 async def handle_exception(e):
     error_type = type(e).__name__
@@ -25,9 +28,10 @@ async def handle_exception(e):
     logger.error(result)
     return Text(result)
 
+
 async def change_language_to(language: str):
     global lang
-    
+
     try:
         _ = lang_data[language]
     except KeyError:
@@ -35,9 +39,9 @@ async def change_language_to(language: str):
     else:
         if language == lang:
             return f"The language is already '{language}'!"
-        else:
-            lang = language
-            return f"Change to '{language}' success!"
+        lang = language
+        return f"Change to '{language}' success!"
+
 
 async def build_result(ms, type=0):
     """
@@ -50,7 +54,7 @@ async def build_result(ms, type=0):
     返回:
     - 根据类型不同返回不同格式的查询结果。
     """
-#    status = f"{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}"
+    #    status = f"{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}"
     if type == 0:
         result = {
             "favicon": ms.favicon_b64 if ms.favicon else "no_favicon.png",
@@ -62,10 +66,11 @@ async def build_result(ms, type=0):
             "gamemode": ms.gamemode,
             "motd": await parse_motd_to_html(ms.motd),
             "players": f"{ms.current_players}/{ms.max_players}",
-#            "status": f"{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}",
-            "lang": lang_data[lang]
+            #            "status": f"{ms.connection_status}|{lang_data[lang][str(ms.connection_status)]}",
+            "lang": lang_data[lang],
         }
         from nonebot_plugin_htmlrender import template_to_pic
+
         template_dir = os.path.join(os.path.dirname(__file__), "templates")
         pic = await template_to_pic(
             template_path=template_dir,
@@ -75,7 +80,9 @@ async def build_result(ms, type=0):
         return NImage(raw=pic)
     elif type == 1:
         motd_part = f"\n{lang_data[lang]['motd']}{await parse_motd(ms.motd)}[#RESET]"
-        version_part = f"\n{lang_data[lang]['version']}{await parse_motd(ms.version)}[#RESET]"
+        version_part = (
+            f"\n{lang_data[lang]['version']}{await parse_motd(ms.version)}[#RESET]"
+        )
     elif type == 2:
         motd_part = f"\n{lang_data[lang]['motd']}{ms.stripped_motd}"
         version_part = f"\n{lang_data[lang]['version']}{ms.version}"
@@ -92,33 +99,43 @@ async def build_result(ms, type=0):
         base_result += f"\n{lang_data[lang]['gamemode']}{ms.gamemode}"
 
     result = (
-        base_result +
-        motd_part +
-        f"\n{lang_data[lang]['players']}{ms.current_players}/{ms.max_players}"
-#        f"\n{lang_data[lang]['status']}{status}"
+        base_result
+        + motd_part
+        + f"\n{lang_data[lang]['players']}{ms.current_players}/{ms.max_players}"
+        #        f"\n{lang_data[lang]['status']}{status}"
     )
-    
+
     if type == 1:
-        if ms.favicon is not None:
-            return [
-                NImage(raw=(await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
-                    ),
+        return (
+            [
+                NImage(
+                    raw=(
+                        await ColoredTextImage(result).draw_text_with_style()
+                    ).pic2bytes()
+                ),
                 Text("Favicon:"),
-                NImage(raw=base64.b64decode(ms.favicon_b64.split(",")[1]))
+                NImage(raw=base64.b64decode(ms.favicon_b64.split(",")[1])),
             ]
-        else:
-            return NImage(raw=(await ColoredTextImage(result).draw_text_with_style()).pic2bytes())
+            if ms.favicon is not None
+            else NImage(
+                raw=(await ColoredTextImage(result).draw_text_with_style()).pic2bytes()
+            )
+        )
     elif type == 2:
-        if ms.favicon is not None:
-            return [
+        return (
+            [
                 Text(result),
                 Text("\nFavicon:"),
-                NImage(raw=base64.b64decode(ms.favicon_b64.split(",")[1]))
+                NImage(raw=base64.b64decode(ms.favicon_b64.split(",")[1])),
             ]
-        else:
-            return [Text(result)]
+            if ms.favicon is not None
+            else [Text(result)]
+        )
 
-async def get_mc(host: str, port: int, timeout: int = 5) -> List[Tuple[Optional[MineStat], Optional[ConnStatus]]]:
+
+async def get_mc(
+    host: str, port: int, timeout: int = 5
+) -> List[Tuple[Optional[MineStat], Optional[ConnStatus]]]:
     """
     获取Java版和Bedrock版的MC服务器信息。
 
@@ -130,10 +147,7 @@ async def get_mc(host: str, port: int, timeout: int = 5) -> List[Tuple[Optional[
     返回:
     - list: 包含Java版和Bedrock版服务器信息的列表，如果列表为空则返回None。
     """
-    return [
-        await get_java(host, port, timeout),
-        await get_bedrock(host, port, timeout)
-    ]
+    return [await get_java(host, port, timeout), await get_bedrock(host, port, timeout)]
 
 
 async def get_message_list(ip: str, port: int, timeout: int = 5) -> list:
@@ -157,13 +171,23 @@ async def get_message_list(ip: str, port: int, timeout: int = 5) -> list:
     for i in ms:
         if i[0] is not None:
             messages.append(await build_result(i[0], message_type))
-    if len(messages) == 0:
-        messages.append(next((Text(f"{lang_data[lang][str(item[1])]}") for item in ms if item[1] != ConnStatus.CONNFAIL),
-            Text(f"{lang_data[lang][str(ConnStatus.CONNFAIL)]}")))
+    if not messages:
+        messages.append(
+            next(
+                (
+                    Text(f"{lang_data[lang][str(item[1])]}")
+                    for item in ms
+                    if item[1] != ConnStatus.CONNFAIL
+                ),
+                Text(f"{lang_data[lang][str(ConnStatus.CONNFAIL)]}"),
+            )
+        )
     return messages
 
 
-async def get_bedrock(host: str, port: int, timeout: int = 5) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
+async def get_bedrock(
+    host: str, port: int, timeout: int = 5
+) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
     """
     异步函数，用于通过指定的主机名、端口和超时时间获取Minecraft Bedrock版服务器状态。
 
@@ -179,11 +203,15 @@ async def get_bedrock(host: str, port: int, timeout: int = 5) -> Tuple[Optional[
 
     if result.online:
         return result, ConnStatus.SUCCESS
-    else:
+    if result.connection_status == ConnStatus.UNKNOWN:
         return None, ConnStatus.CONNFAIL
+    else:
+        return None, result.connection_status
 
 
-async def get_java(host: str, port: int, timeout: int = 5) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
+async def get_java(
+    host: str, port: int, timeout: int = 5
+) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
     """
     异步函数，用于通过指定的主机名、端口和超时时间获取Minecraft Java版服务器状态。
 
@@ -212,8 +240,10 @@ async def get_java(host: str, port: int, timeout: int = 5) -> Tuple[Optional[Min
 
     if result.online:
         return result, ConnStatus.SUCCESS
-    else:
+    if result.connection_status == ConnStatus.UNKNOWN:
         return None, ConnStatus.CONNFAIL
+    else:
+        return None, result.connection_status
 
 
 async def parse_host(host_name) -> Tuple[str, int]:
@@ -232,17 +262,13 @@ async def parse_host(host_name) -> Tuple[str, int]:
     - 第二个元素是主机的端口号（整数形式），如果主机名中未指定端口，则为0。
     """
     pattern = r"(?:\[(.+?)\]|(.+?))(?::(\d+))?$"
-    match = re.match(pattern, host_name)
-
-    if match:
-        address = match.group(1) or match.group(2)
-        port = int(match.group(3)) if match.group(
-            3) else None
-
-        port = port if port is not None else 0
-
-    else:
+    if not (match := re.match(pattern, host_name)):
         return host_name, 0
+
+    address = match[1] or match[2]
+    port = int(match[3]) if match[3] else None
+
+    port = port if port is not None else 0
 
     return address, port
 
@@ -284,19 +310,17 @@ async def resolve_srv(ip: str, port: int = 0) -> list:
     resolver = dns.resolver.Resolver()
     resolver.nameservers = ["223.5.5.5", "1.1.1.1"]
 
-    try:
+    with contextlib.suppress(dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
         response = resolver.resolve(f"_minecraft._tcp.{ip}", "SRV")
 
         if not response:
             return [ip, port]
 
-        for rdata in response:
+        for rdata in response:  # type: ignore
             address = str(rdata.target).rstrip(".")
             if port == 0:
                 port = rdata.port
             return [address, port]
-    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
-        pass
     return [ip, port]
 
 
@@ -354,7 +378,7 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
         "§g": "[#DDD605]",  # minecoin gold
         "§h": "[#E3D4D1]",  # material quartz
         "§i": "[#CECACA]",  # material iron
-        "§j": "[#443A3B]",  # material netherite	
+        "§j": "[#443A3B]",  # material netherite
         "§l": "[#BOLD]",  # bold
         "§m": "[#STRIKETHROUGH]",  # strikethrough
         "§n": "[#UNDERLINE]",  # underline
@@ -364,7 +388,7 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
         "§r": "[#RESET]",  # reset
         "§s": "[#2CBAA8]",  # material diamond
         "§t": "[#21497B]",  # material lapis
-        "§u": "[#9A5CC6]"   # material amethyst
+        "§u": "[#9A5CC6]",  # material amethyst
     }
 
     try:
@@ -374,7 +398,7 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
         i = 0
         while i < len(json_data):
             if json_data[i] == "§":
-                style_code = json_data[i:i+2]
+                style_code = json_data[i : i + 2]
                 if style_code in standard_color_map:
                     result += standard_color_map[style_code]
                     i += 2
@@ -389,10 +413,10 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
         extra_str = ""
         if isinstance(extra, dict) and "extra" in extra:
             for key in extra:
-               if key == "extra":
-            	   result += await parse_extra(extra[key])
-               elif key == "text":
-            	   result += await parse_extra(extra[key])
+                if key == "extra":
+                    result += await parse_extra(extra[key])
+                elif key == "text":
+                    result += await parse_extra(extra[key])
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
@@ -401,20 +425,20 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
                 hex_color = color[1:]
                 if len(hex_color) == 3:
                     hex_color = "".join([c * 2 for c in hex_color])
-                color_code = f"[#{hex_color.upper()}]"
+                color_str = f"[#{hex_color.upper()}]"
             else:
-                color_code = standard_color_map.get(color, "")
-             
-            if extra.get("bold") is True:
-            		extra_str += standard_color_map.get("bold")
-            if extra.get("italic") is True:
-            		extra_str += standard_color_map.get("italic")
-            if extra.get("underline") is True:
-            		extra_str += standard_color_map.get("underline")
-            if extra.get("strikethrough") is True:
-            		extra_str += standard_color_map.get("strikethrough")
+                color_str = standard_color_map.get(color, "")
 
-            result += f"{extra_str}{color_code}{text}[#RESET]"
+            if extra.get("bold") is True:
+                extra_str += standard_color_map["bold"]
+            if extra.get("italic") is True:
+                extra_str += standard_color_map["italic"]
+            if extra.get("underline") is True:
+                extra_str += standard_color_map["underline"]
+            if extra.get("strikethrough") is True:
+                extra_str += standard_color_map["strikethrough"]
+
+            result += f"{extra_str}{color_str}{text}[#RESET]"
         elif isinstance(extra, list):
             for item in extra:
                 result += await parse_extra(item)
@@ -440,100 +464,100 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
         return None
 
     standard_color_map = {
-        "black": ("<font color=\"#000000\">", "</font>"),
-        "dark_blue": ("<font color=\"#0000AA\">", "</font>"),
-        "dark_green": ("<font color=\"#00AA00\">", "</font>"),
-        "dark_aqua": ("<font color=\"#00AAAA\">", "</font>"),
-        "dark_red": ("<font color=\"#AA0000\">", "</font>"),
-        "dark_purple": ("<font color=\"#AA00AA\">", "</font>"),
-        "gold": ("<font color=\"#FFAA00\">", "</font>"),
-        "gray": ("<font color=\"#AAAAAA\">", "</font>"),
-        "dark_gray": ("<font color=\"#555555\">", "</font>"),
-        "blue": ("<font color=\"#0000FF\">", "</font>"),
-        "green": ("<font color=\"#00AA00\">", "</font>"),
-        "aqua": ("<font color=\"#00AAAA\">", "</font>"),
-        "red": ("<font color=\"#AA0000\">", "</font>"),
-        "light_purple": ("<font color=\"#FFAAFF\">", "</font>"),
-        "yellow": ("<font color=\"#FFFF00\">", "</font>"),
-        "white": ("<font color=\"#FFFFFF\">", "</font>"),
-        "reset": ("</strong></i></u></s>", ""),
-        "bold": ("<strong>", "</strong>"),
-        "italic": ("<i>", "</i>"),
-        "underline": ("<u>", "</u>"),
-        "strikethrough": ("<s>", "</s>"),
-        "§0": ("<font color=\"#000000\">", "</font>"),  # black
-        "§1": ("<font color=\"#0000AA\">", "</font>"),  # dark blue
-        "§2": ("<font color=\"#00AA00\">", "</font>"),  # dark green
-        "§3": ("<font color=\"#00AAAA\">", "</font>"),  # dark aqua
-        "§4": ("<font color=\"#AA0000\">", "</font>"),  # dark red
-        "§5": ("<font color=\"#AA00AA\">", "</font>"),  # dark purple
-        "§6": ("<font color=\"#FFAA00\">", "</font>"),  # gold
-        "§7": ("<font color=\"#AAAAAA\">", "</font>"),  # gray
-        "§8": ("<font color=\"#555555\">", "</font>"),  # dark gray
-        "§9": ("<font color=\"#0000FF\">", "</font>"),  # blue
-        "§a": ("<font color=\"#00AA00\">", "</font>"),  # green
-        "§b": ("<font color=\"#00AAAA\">", "</font>"),  # aqua
-        "§c": ("<font color=\"#AA0000\">", "</font>"),  # red
-        "§d": ("<font color=\"#FFAAFF\">", "</font>"),  # light purple
-        "§e": ("<font color=\"#FFFF00\">", "</font>"),  # yellow
-        "§f": ("<font color=\"#FFFFFF\">", "</font>"),  # white
-        "§g": ("<font color=\"#DDD605\">", "</font>"),  # minecoin gold
-        "§h": ("<font color=\"#E3D4D1\">", "</font>"),  # material quartz
-        "§i": ("<font color=\"#CECACA\">", "</font>"),  # material iron
-        "§j": ("<font color=\"#443A3B\">", "</font>"),  # material netherite	
-        "§l": ("<strong>", "</strong>"),  # bold
-        "§m": ("<s>", "</s>"),  # strikethrough
-        "§n": ("<u>", "</u>"),  # underline
-        "§o": ("<i>", "</i>"),  # italic
-        "§p": ("<font color=\"#DEB12D\">", "</font>"),  # material gold
-        "§q": ("<font color=\"#47A036\">", "</font>"),  # material emerald
-        "§r": ("</strong></i></u></s>", ""),  # reset
-        "§s": ("<font color=\"#2CBAA8\">", "</font>"),  # material diamond
-        "§t": ("<font color=\"#21497B\">", "</font>"),  # material lapis
-        "§u": ("<font color=\"#9A5CC6\">", "</font>")   # material amethyst
+        "black": ('<span style="color:#000000;">', "</span>"),
+        "dark_blue": ('<span style="color:#0000AA;">', "</span>"),
+        "dark_green": ('<span style="color:#00AA00;">', "</span>"),
+        "dark_aqua": ('<span style="color:#00AAAA;">', "</span>"),
+        "dark_red": ('<span style="color:#AA0000;">', "</span>"),
+        "dark_purple": ('<span style="color:#AA00AA;">', "</span>"),
+        "gold": ('<span style="color:#FFAA00;">', "</span>"),
+        "gray": ('<span style="color:#AAAAAA;">', "</span>"),
+        "dark_gray": ('<span style="color:#555555;">', "</span>"),
+        "blue": ('<span style="color:#0000FF;">', "</span>"),
+        "green": ('<span style="color:#00AA00;">', "</span>"),
+        "aqua": ('<span style="color:#00AAAA;">', "</span>"),
+        "red": ('<span style="color:#AA0000;">', "</span>"),
+        "light_purple": ('<span style="color:#FFAAFF;">', "</span>"),
+        "yellow": ('<span style="color:#FFFF00;">', "</span>"),
+        "white": ('<span style="color:#FFFFFF;">', "</span>"),
+        "reset": ("</b></i></u></s>", ""),
+        "bold": ("<b style='color: {};'>", "</b>"),
+        "italic": ("<i style='color: {};'>", "</i>"),
+        "underline": ("<u style='color: {};'>", "</u>"),
+        "strikethrough": ("<s style='color: {};'>", "</s>"),
+        "§0": ('<span style="color:#000000;">', "</span>"),  # black
+        "§1": ('<span style="color:#0000AA;">', "</span>"),  # dark blue
+        "§2": ('<span style="color:#00AA00;">', "</span>"),  # dark green
+        "§3": ('<span style="color:#00AAAA;">', "</span>"),  # dark aqua
+        "§4": ('<span style="color:#AA0000;">', "</span>"),  # dark red
+        "§5": ('<span style="color:#AA00AA;">', "</span>"),  # dark purple
+        "§6": ('<span style="color:#FFAA00;">', "</span>"),  # gold
+        "§7": ('<span style="color:#AAAAAA;">', "</span>"),  # gray
+        "§8": ('<span style="color:#555555;">', "</span>"),  # dark gray
+        "§9": ('<span style="color:#0000FF;">', "</span>"),  # blue
+        "§a": ('<span style="color:#00AA00;">', "</span>"),  # green
+        "§b": ('<span style="color:#00AAAA;">', "</span>"),  # aqua
+        "§c": ('<span style="color:#AA0000;">', "</span>"),  # red
+        "§d": ('<span style="color:#FFAAFF;">', "</span>"),  # light purple
+        "§e": ('<span style="color:#FFFF00;">', "</span>"),  # yellow
+        "§f": ('<span style="color:#FFFFFF;">', "</span>"),  # white
+        "§g": ('<span style="color:#DDD605;">', "</span>"),  # minecoin gold
+        "§h": ('<span style="color:#E3D4D1;">', "</span>"),  # material quartz
+        "§i": ('<span style="color:#CECACA;">', "</span>"),  # material iron
+        "§j": ('<span style="color:#443A3B;">', "</span>"),  # material netherite
+        "§l": ("<b style='color: {};'>", "</b>"),  # bold
+        "§m": ("<s style='color: {};'>", "</s>"),  # strikethrough
+        "§n": ("<u style='color: {};'>", "</u>"),  # underline
+        "§o": ("<i style='color: {};'>", "</i>"),  # italic
+        "§p": ('<span style="color:#DEB12D;">', "</span>"),  # material gold
+        "§q": ('<span style="color:#47A036;">', "</span>"),  # material emerald
+        "§r": ("</b></i></u></s>", ""),  # reset
+        "§s": ('<span style="color:#2CBAA8;">', "</span>"),  # material diamond
+        "§t": ('<span style="color:#21497B;">', "</span>"),  # material lapis
+        "§u": ('<span style="color:#9A5CC6;">', "</span>"),  # material amethyst
     }
 
     async def parse_extra(extra, styles=[]):
         result = ""
         if isinstance(extra, dict) and "extra" in extra:
             for key in extra:
-               if key == "extra":
-            	   result += await parse_extra(extra[key], styles)
-               elif key == "text":
-            	   result += await parse_extra(extra[key], styles)
+                if key == "extra":
+                    result += await parse_extra(extra[key], styles)
+                elif key == "text":
+                    result += await parse_extra(extra[key], styles)
         elif isinstance(extra, dict):
             color = extra.get("color", "")
             text = extra.get("text", "")
-            
+
             # 将颜色转换为 HTML 的 font 标签
             if color.startswith("#"):
                 hex_color = color[1:]
                 if len(hex_color) == 3:
                     hex_color = "".join([c * 2 for c in hex_color])
-                color_code = (
-                    f"<font color=\"#{hex_color.upper()}\">", "</font>")
+                color_code = hex_color.upper()
+                color_html_str = (f'<span color="#{color_code};">', "</span>")
             else:
-                # 标准颜色
-                color_code = standard_color_map.get(color, ("", ""))
-
+                color_html_str = standard_color_map.get(color, ("", ""))
+                color_code = re.search(r'color:\s*#([0-9A-Fa-f]{6});', color_html_str[0])
+                color_code = color_code[1] if color_code else "#FFFFFF"
             # 更新样式栈
-            open_tag, close_tag = color_code
+            open_tag, close_tag = color_html_str
             if extra.get("bold") is True:
-            		open_tag_, close_tag_ = standard_color_map.get("bold")
-            		open_tag += open_tag_
-            		close_tag = close_tag_ + close_tag
+                open_tag_, close_tag_ = standard_color_map["bold"]
+                open_tag += open_tag_ % color_code
+                close_tag = close_tag_ + close_tag
             if extra.get("italic") is True:
-            		open_tag_, close_tag_ = standard_color_map.get("italic")
-            		open_tag += open_tag_
-            		close_tag = close_tag_ + close_tag
+                open_tag_, close_tag_ = standard_color_map["italic"]
+                open_tag += open_tag_ % color_code
+                close_tag = close_tag_ + close_tag
             if extra.get("underline") is True:
-            		open_tag_, close_tag_ = standard_color_map.get("underline")
-            		open_tag += open_tag_
-            		close_tag = close_tag_ + close_tag
+                open_tag_, close_tag_ = standard_color_map["underline"]
+                open_tag += open_tag_ % color_code
+                close_tag = close_tag_ + close_tag
             if extra.get("strikethrough") is True:
-            		open_tag_, close_tag_ = standard_color_map.get("strikethrough")
-            		open_tag += open_tag_
-            		close_tag = close_tag_ + close_tag
+                open_tag_, close_tag_ = standard_color_map["strikethrough"]
+                open_tag += open_tag_ % color_code
+                close_tag = close_tag_ + close_tag
             styles.append(close_tag)
             result += open_tag + text + close_tag
         elif isinstance(extra, list):
@@ -551,12 +575,12 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
         styles = []
         while i < len(json_data):
             if json_data[i] == "§":
-                style_code = json_data[i:i+2]
+                style_code = json_data[i : i + 2]
                 if style_code in standard_color_map:
                     open_tag, close_tag = standard_color_map[style_code]
 
                     # 如果是重置，则清空样式栈
-                    if open_tag == "</strong></i></u></s>":
+                    if open_tag == "</b></i></u></s>":
                         # 清空样式栈并关闭所有打开的样式
                         for tag in styles:
                             result += tag
@@ -567,7 +591,7 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
                     i += 2
                     continue
             # 处理换行符
-            if json_data[i:i+2] == "\n":
+            if json_data[i : i + 2] == "\n":
                 result += "<br>"
                 i += 2
                 continue
@@ -584,21 +608,28 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
 
 
 class ColoredTextImage:
-    def __init__(self, text: str, background_color: tuple[int, int, int] = (249, 246, 242), padding: int = 10) -> None:
+    def __init__(
+        self,
+        text: str,
+        background_color: tuple[int, int, int] = (249, 246, 242),
+        padding: int = 10,
+    ) -> None:
         """
         初始化一个用于绘制彩色文本图像的对象。
         """
         self.text = text
         self.padding = padding
         self.background_color = background_color
-        self.font_path = os.path.join(
-            os.path.dirname(__file__), "font", "Regular.ttf")
+        self.font_path = os.path.join(os.path.dirname(__file__), "font", "Regular.ttf")
         self.bold_font_path = os.path.join(
-            os.path.dirname(__file__), "font", "Bold.ttf")
+            os.path.dirname(__file__), "font", "Bold.ttf"
+        )
         self.bold_and_italic_font_path = os.path.join(
-            os.path.dirname(__file__), "font", "Bold_Italic.ttf")
+            os.path.dirname(__file__), "font", "Bold_Italic.ttf"
+        )
         self.italic_font_path = os.path.join(
-            os.path.dirname(__file__), "font", "Italic.ttf")
+            os.path.dirname(__file__), "font", "Italic.ttf"
+        )
         self.font_size = 40
 
     def _calculate_dimensions(self, text: str) -> tuple[int, int]:
@@ -611,7 +642,8 @@ class ColoredTextImage:
         font = self.get_font()
 
         max_width, total_height = self._calculate_plain_text_dimensions(
-            text, font, temp_draw)
+            text, font, temp_draw
+        )
 
         # Add padding to the dimensions
         width = max_width + 2 * self.padding
@@ -637,7 +669,9 @@ class ColoredTextImage:
 
         return max_width, total_height
 
-    def get_font(self, bold: bool = False, italic: bool = False) -> ImageFont.FreeTypeFont:
+    def get_font(
+        self, bold: bool = False, italic: bool = False
+    ) -> ImageFont.FreeTypeFont:
         """
         根据指定的样式获取字体。
 
@@ -661,84 +695,97 @@ class ColoredTextImage:
         """
         text = self.text
         width, height = self._calculate_dimensions(text)
-        self.image = Image.new("RGB", (width, height), self.background_color)
+        self.image = Image.new("RGB", (width, height), self.background_color)  # type: ignore
         self.draw = ImageDraw.Draw(self.image)
+        await self._parse_style(text)
+        return self
 
-        bold = italic = underline = strikethrough = False
+    async def _parse_style(self, text: str):
+        """
+        解析文本中的样式。
+        """
+        styles = {
+            "bold": False,
+            "italic": False,
+            "underline": False,
+            "strikethrough": False,
+        }
         current_color = (0, 0, 0)
         line_height = self.font_size * 1.5
         x_offset = 50
         y_offset = 0
 
+        fonts_cache = {}
+
+        def get_font(
+            bold: bool = False, italic: bool = False
+        ) -> ImageFont.FreeTypeFont:
+            key = (bold, italic)
+            if key not in fonts_cache:
+                fonts_cache[key] = self.get_font(bold, italic)
+            return fonts_cache[key]
+
         for line in text.split("\n"):
             i = 0
             while i < len(line):
                 if line[i] == "[":
-                    if line[i:i+7] == "[#BOLD]":
-                        bold = True
-                        i += 7
-                        continue
-
-                    if line[i:i+9] == "[#ITALIC]":
-                        italic = True
-                        i += 9
-                        continue
-
-                    if line[i:i+12] == "[#UNDERLINE]":
-                        underline = True
-                        i += 12
-                        continue
-
-                    if line[i:i+16] == "[#STRIKETHROUGH]":
-                        strikethrough = True
-                        i += 16
-                        continue
-
-                    if line[i:i+8] == "[#RESET]":
-                        bold = italic = underline = strikethrough = False
+                    end_tag = line.find("]", i)
+                    if end_tag == -1:
+                        break
+                    tag = line[i : end_tag + 1]
+                    if tag == "[#BOLD]":
+                        styles["bold"] = True
+                    elif tag == "[#ITALIC]":
+                        styles["italic"] = True
+                    elif tag == "[#UNDERLINE]":
+                        styles["underline"] = True
+                    elif tag == "[#STRIKETHROUGH]":
+                        styles["strikethrough"] = True
+                    elif tag == "[#RESET]":
+                        styles = {key: False for key in styles}
                         current_color = (0, 0, 0)
-                        i += 8
-                        continue
+                    elif tag.startswith("[#") and len(tag) > 2:
+                        hex_color = tag[2:-1].upper()
+                        if len(hex_color) == 3:
+                            hex_color = "".join([c * 2 for c in hex_color])
+                        try:
+                            current_color = tuple(
+                                int(hex_color[j : j + 2], 16) for j in (0, 2, 4)
+                            )
+                        except ValueError:
+                            current_color = (0, 0, 0)
+                    i = end_tag + 1
+                    continue
 
-                    if line[i:i+2] == "[#":
-                        close_bracket_index = line.find("]", i)
-                        if close_bracket_index != -1:
-                            hex_color = line[i+2:close_bracket_index].upper()
-                            if len(hex_color) == 3:
-                                hex_color = "".join([c * 2 for c in hex_color])
-                            try:
-                                current_color = tuple(
-                                    int(hex_color[j:j+2], 16) for j in (0, 2, 4))
-                            except ValueError:
-                                pass
-                            i = close_bracket_index + 1
-                            continue
-
-                # 处理普通字符
                 char = line[i]
-                font_mod = self.get_font(bold, italic)
-                bbox = self.draw.textbbox(
-                    (x_offset, y_offset), char, font=font_mod)
+                font_mod = get_font(styles["bold"], styles["italic"])
+                bbox = self.draw.textbbox((x_offset, y_offset), char, font=font_mod)
                 width = bbox[2] - bbox[0]
 
-                self.draw.text((x_offset, y_offset), char,
-                               fill=current_color, font=font_mod)
+                self.draw.text(
+                    (x_offset, y_offset), char, fill=current_color, font=font_mod
+                )
 
-                if underline:
+                if styles["underline"]:
                     underline_y = y_offset + self.font_size
-                    self.draw.line((x_offset, underline_y, x_offset + width, underline_y),
-                                   fill=current_color, width=1)
+                    self.draw.line(
+                        (x_offset, underline_y, x_offset + width, underline_y),
+                        fill=current_color,
+                        width=1,
+                    )
 
-                if strikethrough:
+                if styles["strikethrough"]:
                     strikethrough_y = y_offset + self.font_size / 2
-                    self.draw.line((x_offset, strikethrough_y, x_offset + width, strikethrough_y),
-                                   fill=current_color, width=1)
+                    self.draw.line(
+                        (x_offset, strikethrough_y, x_offset + width, strikethrough_y),
+                        fill=current_color,
+                        width=1,
+                    )
 
                 x_offset += width
                 i += 1
             y_offset += line_height
             x_offset = 50
-        return self
 
     def save(self, filename: str) -> None:
         """

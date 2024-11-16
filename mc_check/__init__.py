@@ -7,18 +7,18 @@ from .utils import (
     handle_exception
 )
 from nonebot.plugin import PluginMetadata
-from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig
+from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig # type: ignore
 from nonebot import require
 require("nonebot_plugin_alconna")
-from nonebot_plugin_alconna import on_alconna, Match, UniMessage, Text
-from nonebot.plugin import PluginMetadata
-from arclet.alconna import Args, Alconna
+from nonebot_plugin_alconna import on_alconna, Match, UniMessage, Text  # type: ignore  # noqa: E402
+from nonebot.plugin import PluginMetadata  # noqa: E402, F811
+from arclet.alconna import Args, Alconna  # type: ignore # noqa: E402
 
 
 __plugin_meta__ = PluginMetadata(
     name="Minecraft查服",
     description="Minecraft服务器状态查询，支持IPv6",
-    usage=f"""
+    usage="""
     Minecraft服务器状态查询，支持IPv6
     用法：
         查服 [ip]:[端口] / 查服 [ip]
