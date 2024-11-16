@@ -5,7 +5,6 @@ import ujson
 import os
 import dns.resolver
 import base64
-import sys
 import traceback
 from zhenxun.services.log import logger # type: ignore
 from .data_source import MineStat, SlpProtocols, ConnStatus
@@ -20,13 +19,9 @@ from nonebot_plugin_alconna import Image as NImage  # type: ignore # noqa: E402
 
 
 async def handle_exception(e):
-    error_type = type(e).__name__
     error_message = str(e)
-    trace_info = traceback.extract_tb(sys.exc_info()[2])
-    error_traceback = trace_info[-2] if len(trace_info) > 1 else trace_info[-1]
-    result = f"ERROR:\nType: {error_type}\nMessage: {error_message}\nLine: {error_traceback.lineno}\nFile: {error_traceback.filename}\nFunction: {error_traceback.name}"
-    logger.error(result)
-    return Text(result)
+    logger.error(traceback.format_exc())
+    return Text(f"[HandleException]{error_message}\n>>更多信息详见日志文件<<")
 
 
 async def change_language_to(language: str):
@@ -162,10 +157,7 @@ async def get_message_list(ip: str, port: int, timeout: int = 5) -> list:
     返回:
     - list: 包含消息的列表。
     """
-    try:
-        srv = await resolve_srv(ip, port)
-    except (dns.resolver.LifetimeTimeout, dns.resolver.NoNameservers):
-        return [Text(f"{lang_data[lang]['dns_fail']}")]
+    srv = await resolve_srv(ip, port)
     messages = []
     ms = await get_mc(srv[0], int(srv[1]), timeout)
     for i in ms:
@@ -544,19 +536,19 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
             open_tag, close_tag = color_html_str
             if extra.get("bold") is True:
                 open_tag_, close_tag_ = standard_color_map["bold"]
-                open_tag += open_tag_ % color_code
+                open_tag += open_tag_.format(color_code)
                 close_tag = close_tag_ + close_tag
             if extra.get("italic") is True:
                 open_tag_, close_tag_ = standard_color_map["italic"]
-                open_tag += open_tag_ % color_code
+                open_tag += open_tag_.format(color_code)
                 close_tag = close_tag_ + close_tag
             if extra.get("underline") is True:
                 open_tag_, close_tag_ = standard_color_map["underline"]
-                open_tag += open_tag_ % color_code
+                open_tag += open_tag_.format(color_code)
                 close_tag = close_tag_ + close_tag
             if extra.get("strikethrough") is True:
                 open_tag_, close_tag_ = standard_color_map["strikethrough"]
-                open_tag += open_tag_ % color_code
+                open_tag += open_tag_.format(color_code)
                 close_tag = close_tag_ + close_tag
             styles.append(close_tag)
             result += open_tag + text + close_tag

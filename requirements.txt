@@ -1,3 +1,4 @@
 dnspython
 pillow
 ujson
+nonebot-plugin-htmlrender
