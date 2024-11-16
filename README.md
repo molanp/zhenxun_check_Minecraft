@@ -85,7 +85,7 @@ HTML消息
 |:-----:|:-----:|:-----:|:-----:|:-----:|
 | 文本 | ❌ | ⭕ | ❌ | ⭕ |
 | 图片 | ⭕ | ⭕ | ⭕ | ❌ |
-| HTML | ⭕ | ⭕ | ❌ | ⭕ |
+| HTML | ⭕ | ⭕ | ⭕ | ⭕ |
 
 # [下载地址](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 

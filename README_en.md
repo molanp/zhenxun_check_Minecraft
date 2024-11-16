@@ -79,7 +79,7 @@ Geyser server double check(More than just HTML messages are supported, only one 
 |:-----:|:-----:|:-----:|:-----:|:-----:|
 | Text | ❌ | ⭕ | ❌ | ⭕ |
 | Picture | ⭕ | ⭕ | ⭕ | ❌ |
-| HTML | ⭕ | ⭕ | ❌ | ⭕ |
+| HTML | ⭕ | ⭕ | ⭕ | ⭕ |
 
 # [Download](https://github.com/molanp/zhenxun_chafu_Minecraft/releases)
 
