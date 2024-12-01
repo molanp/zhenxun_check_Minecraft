@@ -242,4 +242,5 @@ pip install dnspython
 ```
 
 # 感谢
-[minestat](https://github.com/FragLand/minestat): 一个多平台语言的我的世界服务器查询模块
+* [minestat](https://github.com/FragLand/minestat): 一个多平台语言的我的世界服务器查询模块
+* [tzdtwsj](https://github.com/tzdtwsj): 为该项目提出了图片渲染功能，颜色渲染功能，互通服查询方案实现等贡献
