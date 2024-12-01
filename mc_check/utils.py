@@ -527,7 +527,7 @@ async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
                 if len(hex_color) == 3:
                     hex_color = "".join([c * 2 for c in hex_color])
                 color_code = hex_color.upper()
-                color_html_str = (f'<span color="#{color_code};">', "</span>")
+                color_html_str = (f'<span style="color=#{color_code};">', "</span>")
             else:
                 color_html_str = standard_color_map.get(color, ("", ""))
                 color_code = re.search(r'color:\s*#([0-9A-Fa-f]{6});', color_html_str[0])
