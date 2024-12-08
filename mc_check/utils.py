@@ -22,7 +22,7 @@ from nonebot_plugin_alconna import Image as NImage  # type: ignore # noqa: E402
 async def handle_exception(e):
     error_message = str(e)
     logger.error(traceback.format_exc())
-    return Text(f"[HandleException]{error_message}\n>>更多信息详见日志文件<<")
+    return Text(f"[CrashHandle]{error_message}\n>>更多信息详见日志文件<<")
 
 
 async def change_language_to(language: str):
@@ -301,7 +301,7 @@ async def resolve_srv(ip: str, port: int = 0) -> List[str]:
         list: 包含服务器地址和端口的列表。
     """
     resolver = dns.asyncresolver.Resolver()
-    resolver.timeout = 5
+    resolver.timeout = 10
     resolver.retries = 3
     resolver.nameservers = ["223.5.5.5", "8.8.8.8"]
 
