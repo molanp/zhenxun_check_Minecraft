@@ -3,7 +3,8 @@ import io
 import re
 import ujson
 import os
-import dns.resolver
+import dns.asyncresolver
+import dns.name
 import base64
 import traceback
 from zhenxun.services.log import logger # type: ignore
@@ -286,7 +287,7 @@ async def is_invalid_address(address: str) -> bool:
     return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
 
 
-async def resolve_srv(ip: str, port: int = 0) -> list:
+async def resolve_srv(ip: str, port: int = 0) -> List[str]:
     """
     通过DNS解析服务器地址和端口。
 
@@ -299,16 +300,20 @@ async def resolve_srv(ip: str, port: int = 0) -> list:
     返回:
         list: 包含服务器地址和端口的列表。
     """
-    resolver = dns.resolver.Resolver()
-    #resolver.nameservers = ["223.5.5.5", "1.1.1.1"]
+    resolver = dns.asyncresolver.Resolver()
+    resolver.timeout = 5
+    resolver.retries = 3
+    resolver.nameservers = ["223.5.5.5", "8.8.8.8"]
+
+    qname = dns.name.from_text(f"_minecraft._tcp.{ip}")
 
     with contextlib.suppress(dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):
-        response = resolver.resolve(f"_minecraft._tcp.{ip}", "SRV")
+        response = await resolver.resolve(qname, "SRV")
 
         if not response:
             return [ip, port]
 
-        for rdata in response:  # type: ignore
+        for rdata in response:
             address = str(rdata.target).rstrip(".")
             if port == 0:
                 port = rdata.port
