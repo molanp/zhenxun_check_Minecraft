@@ -303,7 +303,7 @@ async def resolve_srv(ip: str, port: int = 0) -> List[str]:
     resolver = dns.asyncresolver.Resolver()
     resolver.timeout = 10
     resolver.retries = 3
-    resolver.nameservers = ["223.5.5.5", "8.8.8.8"]
+    resolver.nameservers = ["223.5.5.5", "180.184.1.1", "1.1.1.1"]
 
     qname = dns.name.from_text(f"_minecraft._tcp.{ip}")
 
