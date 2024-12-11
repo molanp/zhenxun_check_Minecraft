@@ -296,7 +296,7 @@ async def is_invalid_address(address: str) -> bool:
     match_ipv6 = re.match(ipv6_pattern, address)
 
     # 如果三个匹配都失败，则返回True，表示无效
-    return (match_domain is None) or (match_ipv4 is None) or (match_ipv6 is None)
+    return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
 
 
 async def resolve_srv(ip: str, port: int = 0) -> List[str]:
