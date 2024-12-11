@@ -3,6 +3,7 @@ import io
 import re
 import ujson
 import os
+import idna
 import dns.asyncresolver
 import dns.name
 import base64
@@ -276,15 +277,26 @@ async def is_invalid_address(address: str) -> bool:
     返回:
     bool: 如果地址无效则返回True，否则返回False。
     """
-    domain_pattern = r"^(?:(?!_)(?!-)(?!.*--)[a-zA-Z0-9\u4e00-\u9fa5\-_]{1,63}\.?)+[a-zA-Z\u4e00-\u9fa5]{2,}$"
+    # 域名正则（包含普通域名与 Punycode 支持）
+    if address.lower() == "localhost":
+    	return False
+    domain_pattern = r"^(?!-)(?:[A-Za-z0-9-]{1,63}\.)+(?:[A-Za-z]{2,})$|^(xn--[A-Za-z0-9-]{1,63})\.[A-Za-z]{2,}$"
     ipv4_pattern = r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
     ipv6_pattern = r"^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$"
 
-    match_domain = re.match(domain_pattern, address)
+    # 尝试将域名转换为Punycode
+    try:
+        punycode_address = idna.encode(address).decode("utf-8")
+        match_domain = re.match(domain_pattern, punycode_address)
+    except idna.IDNAError:
+        match_domain = None
+
+    # 对IPv4和IPv6地址进行匹配
     match_ipv4 = re.match(ipv4_pattern, address)
     match_ipv6 = re.match(ipv6_pattern, address)
 
-    return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
+    # 如果三个匹配都失败，则返回True，表示无效
+    return (match_domain is None) or (match_ipv4 is None) or (match_ipv6 is None)
 
 
 async def resolve_srv(ip: str, port: int = 0) -> List[str]:
