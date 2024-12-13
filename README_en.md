@@ -12,7 +12,7 @@ English|[简体中文](README.md)
 - [x] Adapted unicode full fonts and glyphs
 - [x] Render Motd styles
 - [x] Query server nickname
-- [x] Query the maximum number of servers, the current number of people
+- [x] Query the maximum number of servers, the current number of players and player list
 - [x] Query server motd
 - [x] returns the server address and port
 - [x] Returns the server online status

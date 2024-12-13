@@ -54,17 +54,18 @@ async def build_result(ms, type=0):
     if type == 0:
         result = {
             "favicon": ms.favicon_b64 if ms.favicon else "no_favicon.png",
-            "version": await parse_motd_to_html(ms.version),
+            "version": await parse_motd2html(ms.version),
             "slp_protocol": str(ms.slp_protocol),
             "protocol_version": ms.protocol_version,
             "address": ms.address,
             "port": ms.port,
             "delay": f"{ms.latency}ms",
             "gamemode": ms.gamemode,
-            "motd": await parse_motd_to_html(ms.motd),
+            "motd": await parse_motd2html(ms.motd),
             "players": f"{ms.current_players}/{ms.max_players}",
+            "player_list": await parse_motd2html("§r, ".join(ms.player_list)) if ms.player_list else None,
             "lang": lang_data[lang],
-            "VERSION": VERSION
+            "VERSION": VERSION,
         }
         from nonebot_plugin_htmlrender import template_to_pic
 
@@ -76,9 +77,9 @@ async def build_result(ms, type=0):
         )
         return NImage(raw=pic)
     elif type == 1:
-        motd_part = f"\n{lang_data[lang]['motd']}{await parse_motd(ms.motd)}[#RESET]"
+        motd_part = f"\n{lang_data[lang]['motd']}{await parse_motd2mark(ms.motd)}[#RESET]"
         version_part = (
-            f"\n{lang_data[lang]['version']}{await parse_motd(ms.version)}[#RESET]"
+            f"\n{lang_data[lang]['version']}{await parse_motd2mark(ms.version)}[#RESET]"
         )
     elif type == 2:
         motd_part = f"\n{lang_data[lang]['motd']}{ms.stripped_motd}"
@@ -100,10 +101,9 @@ async def build_result(ms, type=0):
         base_result
         + motd_part
         + f"\n{lang_data[lang]['players']}{ms.current_players}/{ms.max_players}"
-        #        f"\n{lang_data[lang]['status']}{status}"
     )
-
     if type == 1:
+        result += f"\n{lang_data[lang]['player_list']}{await parse_motd2mark(', '.join(ms.player_list))}[#RESET]" if ms.player_list else ""
         return (
             [
                 NImage(
@@ -120,6 +120,7 @@ async def build_result(ms, type=0):
             )
         )
     elif type == 2:
+        result += f"\n{lang_data[lang]['player_list']}{', '.join(ms.player_list)}" if ms.player_list else ""
         return (
             [
                 Text(result),
@@ -301,7 +302,7 @@ async def is_invalid_address(address: str) -> bool:
     return (match_domain is None) and (match_ipv4 is None) and (match_ipv6 is None)
 
 
-async def resolve_srv(ip: str, port: int = 0) -> List[str|int]:
+async def resolve_srv(ip: str, port: int = 0) -> List[str | int]:
     """
     通过DNS解析服务器地址和端口。
 
@@ -316,18 +317,18 @@ async def resolve_srv(ip: str, port: int = 0) -> List[str|int]:
     """
     resolver = dns.asyncresolver.Resolver()
     resolver.timeout = 10
-    resolver.retries = 3 # type: ignore
+    resolver.retries = 3  # type: ignore
     resolver.nameservers = ["223.5.5.5", "180.184.1.1", "1.1.1.1"]
 
     qname = dns.name.from_text(f"_minecraft._tcp.{ip}")
 
-    with contextlib.suppress(dns.resolver.NoAnswer, dns.resolver.NXDOMAIN): # type: ignore
+    with contextlib.suppress(dns.resolver.NoAnswer, dns.resolver.NXDOMAIN):  # type: ignore
         response = await resolver.resolve(qname, "SRV")
 
         if not response:
             return [ip, port]
 
-        for rdata in response: # type: ignore
+        for rdata in response:  # type: ignore
             address = str(rdata.target).rstrip(".")
             if port == 0:
                 port = rdata.port
@@ -335,7 +336,7 @@ async def resolve_srv(ip: str, port: int = 0) -> List[str|int]:
     return [ip, port]
 
 
-async def parse_motd(json_data: Optional[str]) -> Optional[str]:
+async def parse_motd2mark(json_data: Optional[str]) -> Optional[str]:
     """
     解析MOTD数据并转换为带有自定义十六进制颜色标记的字符串。
 
@@ -461,7 +462,7 @@ async def parse_motd(json_data: Optional[str]) -> Optional[str]:
     return await parse_extra(json_data)
 
 
-async def parse_motd_to_html(json_data: Optional[str]) -> Optional[str]:
+async def parse_motd2html(json_data: Optional[str]) -> Optional[str]:
     """
     解析MOTD数据并转换为带有自定义颜色的HTML字符串。
 

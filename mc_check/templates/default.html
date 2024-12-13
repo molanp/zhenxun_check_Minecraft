@@ -23,9 +23,7 @@
             {{ data["lang"]["slp_protocol"]|safe }}{{ data["slp_protocol"]|safe }}
          </label>
          {% if data["protocol_version"] is not none %}
-            <label>
-               {{ data["lang"]["protocol_version"]|safe }}{{ data["protocol_version"]|safe }}
-            </label>
+            <label>{{ data["lang"]["protocol_version"]|safe }}{{ data["protocol_version"]|safe }}</label>
          {% endif %}
          <label>
             {{ data["lang"]["address"]|safe }}{{ data["address"]|safe }}
@@ -42,6 +40,9 @@
          <label>
             {{ data["lang"]["players"]|safe }}{{ data["players"]|safe }}
          </label>
+         {% if data["player_list"] is not none %}
+            <label>{{ data["lang"]["player_list"]|safe }}{{ data["player_list"]|safe }}</label>
+         {% endif %}
       </div>
       <div class="watermark">
          zhenxun_plugin_mccheck v{{ data["VERSION"] }} by molanp.
