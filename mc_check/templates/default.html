@@ -22,6 +22,11 @@
          <label>
             {{ data["lang"]["slp_protocol"]|safe }}{{ data["slp_protocol"]|safe }}
          </label>
+         {% if data["protocol_version"] is not none %}
+            <label>
+               {{ data["lang"]["protocol_version"]|safe }}{{ data["protocol_version"]|safe }}
+            </label>
+         {% endif %}
          <label>
             {{ data["lang"]["address"]|safe }}{{ data["address"]|safe }}
          </label>
@@ -37,11 +42,9 @@
          <label>
             {{ data["lang"]["players"]|safe }}{{ data["players"]|safe }}
          </label>
-         {#
-         <label>
-            {{ data["lang"]["status"]|safe }}{{ data["status"]|safe }}
-         </label>
-         #}
+      </div>
+      <div class="watermark">
+         zhenxun_plugin_mccheck v{{ data["VERSION"] }} by molanp.
       </div>
    </div>
 </body>

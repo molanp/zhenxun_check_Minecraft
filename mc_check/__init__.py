@@ -1,4 +1,4 @@
-from .configs import lang_data, lang
+from .configs import lang_data, lang, VERSION
 from .utils import (
     is_invalid_address,
     get_message_list,
@@ -11,7 +11,6 @@ from zhenxun.configs.utils import PluginCdBlock, PluginExtraData, RegisterConfig
 from nonebot import require
 require("nonebot_plugin_alconna")
 from nonebot_plugin_alconna import on_alconna, Match, UniMessage, Text  # type: ignore  # noqa: E402
-from nonebot.plugin import PluginMetadata  # noqa: E402, F811
 from arclet.alconna import Args, Alconna  # type: ignore # noqa: E402
 
 
@@ -33,7 +32,7 @@ __plugin_meta__ = PluginMetadata(
     """.strip(),
     extra=PluginExtraData(
         author="molanp",
-        version="1.21",
+        version=VERSION,
         limits=[PluginCdBlock(result=None)],
         menu_type="一些工具",
         configs=[

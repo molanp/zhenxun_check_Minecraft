@@ -1,4 +1,4 @@
-from zhenxun.configs.config import Config
+from zhenxun.configs.config import Config # type: ignore
 import os
 import ujson
 
@@ -9,3 +9,4 @@ def readInfo(file: str) -> dict:
 message_type = Config.get_config("mc_check", "type", 0)
 lang = Config.get_config("mc_check", "LANGUAGE", "zh-cn")
 lang_data = readInfo("language.json")
+VERSION = "1.22"

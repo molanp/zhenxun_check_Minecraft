@@ -46,11 +46,24 @@ body {
 
 .server-form {
     display: flex;
+    position: relative;
     width: 600px;
     padding: 15px;
     color: #fff;
     border: 8px solid;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, .589);
     border-image: url(background.png) 8;
-    overflow-y: scroll
 }
+.watermark {
+    position: absolute;
+    font-weight: bold;
+    font-size: 1px;
+    bottom: 0.5px;
+    right: 0;
+    color: #888888;
+    font-size: 14px;
+    opacity: 0.1;
+    z-index: 1000;
+    pointer-events: none;
+ }
