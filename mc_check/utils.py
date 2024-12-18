@@ -8,6 +8,7 @@ import dns.asyncresolver
 import dns.name
 import base64
 import traceback
+import asyncio
 from zhenxun.services.log import logger  # type: ignore
 from .data_source import MineStat, SlpProtocols, ConnStatus
 from .configs import lang_data, lang, message_type, VERSION
@@ -146,7 +147,8 @@ async def get_mc(
     返回:
     - list: 包含Java版和Bedrock版服务器信息的列表，如果列表为空则返回None。
     """
-    return [await get_java(host, port, timeout), await get_bedrock(host, port, timeout)]
+    loop = asyncio.get_event_loop()
+    return [await loop.run_in_executor(None, get_java, host, port, timeout), await loop.run_in_executor(None, get_bedrock, host, port, timeout)]
 
 
 async def get_message_list(ip: str, port: int, timeout: int = 5) -> List[Text]:
@@ -182,7 +184,7 @@ async def get_message_list(ip: str, port: int, timeout: int = 5) -> List[Text]:
     return messages
 
 
-async def get_bedrock(
+def get_bedrock(
     host: str, port: int, timeout: int = 5
 ) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
     """
@@ -206,7 +208,7 @@ async def get_bedrock(
         return None, result.connection_status
 
 
-async def get_java(
+def get_java(
     host: str, port: int, timeout: int = 5
 ) -> Tuple[Optional[MineStat], Optional[ConnStatus]]:
     """
